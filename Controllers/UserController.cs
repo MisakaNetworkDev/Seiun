@@ -111,7 +111,7 @@ public class UserController(ILogger<UserController> logger, IRepositoryService r
         var tokenInfo = new TokenInfo
         {
             Token = token,
-            ExpireAt = DateTimeOffset.Now.AddHours(Constants.Token.TokenExpirationTime)
+            ExpireAt = DateTimeOffset.Now.AddHours(Constants.Token.TokenExpirationTime).ToUnixTimeSeconds()
         };
         return Ok(UserLoginResp.Success(SuccessMessages.Controller.User.LoginSuccess, tokenInfo));
     }
@@ -289,5 +289,22 @@ public class UserController(ILogger<UserController> logger, IRepositoryService r
         }
 
         return Ok(ResponseFactory.NewSuccessBaseResponse(SuccessMessages.Controller.User.AvatarUpdateSuccess));
+    }
+
+    [HttpGet("profile/{userId:Guid}", Name = "GetProfile")]
+    [ProducesResponseType(typeof(UserProfileResp), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(UserProfileResp), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetProfile(Guid userId)
+    {
+        var user = await repository.UserRepository.GetByIdAsync(userId);
+        if (user == null)
+        {
+            return NotFound(UserProfileResp.Fail(
+                StatusCodes.Status404NotFound,
+                ErrorMessages.Controller.User.UserNotFound
+            ));
+        }
+
+        return Ok(UserProfileResp.Success(user));
     }
 }

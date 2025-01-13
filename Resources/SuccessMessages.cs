@@ -10,6 +10,7 @@ public static class SuccessMessages
             public const string LoginSuccess = "controller.user.login.login_success";
             public const string ProfileUpdateSuccess = "controller.user.profile.update_success";
             public const string AvatarUpdateSuccess = "controller.user.profile.avatar_update_success";
+            public const string GetProfileSuccess = "controller.user.profile.get_success";
         }
     }
 }
