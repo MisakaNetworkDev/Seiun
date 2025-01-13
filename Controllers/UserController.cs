@@ -19,7 +19,7 @@ namespace Seiun.Controllers;
 /// <param name="logger">日志</param>
 /// <param name="repository">仓库服务</param>
 /// <param name="jwt">JWT服务</param>
-[ApiController, Route("/user")]
+[ApiController, Route("/api/user")]
 public class UserController(ILogger<UserController> logger, IRepositoryService repository, IJwtService jwt)
     : ControllerBase
 {
@@ -247,8 +247,8 @@ public class UserController(ILogger<UserController> logger, IRepositoryService r
         {
             return BadRequest(ResponseFactory.NewFailedBaseResponse(
                 StatusCodes.Status400BadRequest,
-                ErrorMessages.Controller.Any.ImageSizeTooLarge)
-            );
+                ErrorMessages.Controller.Any.ImageSizeTooLarge
+            ));
         }
 
         // 处理头像文件
@@ -258,7 +258,7 @@ public class UserController(ILogger<UserController> logger, IRepositoryService r
             // 调整尺寸
             image.Mutate(ipc => ipc.Resize(new ResizeOptions
             {
-                Size = new Size(Constants.User.AvatarStorageWidth, Constants.User.AvatarStorageHeight),
+                Size = new Size(Constants.User.AvatarStorageSize, Constants.User.AvatarStorageSize),
                 Mode = ResizeMode.Max
             }));
             // 转换为 webp 格式

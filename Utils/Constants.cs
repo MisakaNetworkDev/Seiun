@@ -18,8 +18,7 @@ public static class Constants
         public const int MaxAvatarSize = 8 * 1024 * 1024; // 8MB
         public const int AvatarMaxWidth = 1024;
         public const int AvatarMaxHeight = 1024;
-        public const int AvatarStorageWidth = 256;
-        public const int AvatarStorageHeight = 256;
+        public const int AvatarStorageSize = 256;
         public static readonly string[] AllowedAvatarExtensions = [".jpg", ".jpeg", ".png", "webp"];
     }
 

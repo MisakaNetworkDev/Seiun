@@ -34,7 +34,7 @@ public class UserRepository(SeiunDbContext dbContext, IMinioClient minioClient)
                 .WithObject(user.AvatarFileName);
             await MinioCl.RemoveObjectAsync(removeObjectArgs).ConfigureAwait(false);
         }
-        
+
         // Upload new avatar
         var avatarName = $"{Guid.NewGuid()}.webp";
         var putObjectArgs = new PutObjectArgs()
@@ -44,10 +44,27 @@ public class UserRepository(SeiunDbContext dbContext, IMinioClient minioClient)
             .WithStreamData(avatarData)
             .WithObjectSize(avatarData.Length);
         await MinioCl.PutObjectAsync(putObjectArgs);
-        
+
         // Update user avatar file name
         user.AvatarFileName = avatarName;
         DbContext.Users.Update(user);
         await DbContext.SaveChangesAsync();
+    }
+    
+    /// <summary>
+    /// 获取头像文件流
+    /// </summary>
+    /// <param name="fileName">头像文件名</param>
+    /// <returns>头像文件流</returns>
+    public async Task<MemoryStream> GetAvatarAsync(string fileName)
+    {
+        var avatarStream = new MemoryStream();
+        var getObjectArgs = new GetObjectArgs()
+            .WithBucket(Constants.BucketNames.Avatar)
+            .WithObject(fileName)
+            .WithCallbackStream(data => data.CopyTo(avatarStream));
+        await MinioCl.GetObjectAsync(getObjectArgs).ConfigureAwait(false);
+        avatarStream.Seek(0, SeekOrigin.Begin);  // 重置流位置
+        return avatarStream;
     }
 }
