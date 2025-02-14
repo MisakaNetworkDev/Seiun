@@ -1,3 +1,5 @@
+using Seiun.Models.Parameters;
+
 namespace Seiun.Resources;
 
 public static class ErrorMessages
@@ -6,7 +8,10 @@ public static class ErrorMessages
     {
         public const string PhoneRequired = "error.validation.phone_number_required";
         public const string PasswordRequired = "error.validation.password_required";
-        
+        public const string PublicAnnouncementTitleRequired = "error.validation.public_announcement_title_required";
+        public const string PublicAnnouncementContentRequired = "error.validation.public_announcement_content_required";
+        public const string ArticleRequired = "error.validation.article_required";
+
         public const string InvalidPhone = "error.validation.invalid_phone_number";
         public const string InvalidEmail = "error.validation.invalid_email";
         public const string InvalidPassword = "error.validation.invalid_password";
@@ -40,6 +45,33 @@ public static class ErrorMessages
             public const string ProfileUpdateFailed = "error.controller.user.profile.update_failed";
             public const string PhoneNumberDuplicated = "error.controller.user.register.phone_number_already_exists";
             public const string RegisterFailed = "error.controller.user.register.register_failed";
+        }
+        public static class Article
+        {
+            public const string UserNotAuthorized = "error.controller.article.user_not_authorized";
+            public const string CreateFailed = "error.controller.article.create.create_failed";
+            public const string ArticleNotFound = "error.controller.article.not_found";
+            public const string DeleteFailed = "error.controller.article.delete.delete_failed";
+            public const string PinFailed = "error.controller.article.pin.pin_failed";
+            public const string ArticlePinned = "error.controller.article.pin.article_is_pinned";
+            public const string PinCancelFailed = "error.controller.article.cancelpin.pin_cancel_failed";
+            public const string ArticleNotPinned = "error.controller.article.cancelpin.article_not_pinned";
+            public const string UserIdRequired = "error.controller.article.getarticlelist.user_id_required";
+            public const string ArticleListNotFound = "error.controller.article.getarticlelist.article_list_not_found";
+            public const string InvalidReqType = "error.controller.article.getarticlelist.invalid_reqtype";
+            public const string GetArticleListFailed = "error.controller.article.getarticlelist.get_articlelist_failed";
+            public const string LikeFailed = "error.controller.article.like.like_failed";
+            public const string ArticleLiked = "error.controller.article.like.article_is_liked";
+            public const string ArticleNotLiked = "error.controller.article.cancellike.article_not_liked";
+            public const string ArticleImgsUploadFailed = "error.controller.article.uploadarticleimage.upload_failed";
+        }
+
+        public static class PublicAnnouncement
+        {
+            public const string PublishFailed = "error.controller.publicannouncement.publish.publish_failed";
+            public const string AnnouncementNotFound = "error.controller.publicannouncement.not_found";
+            public const string NotAuthorized = "error.controller.publicannouncement.not_authorized";
+            public const string DeleteFailed = "error.controller.publicannouncement.delete.delete_failed";
         }
     }
 }

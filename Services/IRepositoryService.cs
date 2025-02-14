@@ -5,4 +5,7 @@ namespace Seiun.Services;
 public interface IRepositoryService
 {
     IUserRepository UserRepository { get; }
+    IArticleRepository ArticleRepository { get; }
+    IUserArticleStatusRepository UserArticleStatusRepository { get; }
+    IPublicAnnouncementRepository PublicAnnouncementRepository { get; }
 }

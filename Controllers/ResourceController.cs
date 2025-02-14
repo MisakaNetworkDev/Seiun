@@ -9,7 +9,7 @@ using SixLabors.ImageSharp.Processing;
 namespace Seiun.Controllers;
 
 [ApiController, Route("/resources")]
-public class ResourceController(ILogger<UserController> logger, IRepositoryService repository, IJwtService jwt)
+public class ResourceController(ILogger<UserController> logger, IRepositoryService repository)
     : ControllerBase
 {
     /// <summary>
@@ -71,5 +71,51 @@ public class ResourceController(ILogger<UserController> logger, IRepositoryServi
             logger.LogError(e, "Failed to resize avatar: {}", fileName);
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
+    }
+
+    /// <summary>
+    /// 文章图片接口
+    /// </summary>
+    /// <param name="fileName">文件名</param>
+    /// <returns>文章图片文件</returns>
+    [HttpGet("article-image/{fileName}")]
+    [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetArticleImages(string fileName)
+    {
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            return BadRequest();
+        }
+
+        MemoryStream articleImgStream;
+        try
+        {
+            articleImgStream = await repository.ArticleRepository.GetArticleImgAsync(fileName);
+        }
+        catch (MinioException e)
+        {
+            if(e is ObjectNotFoundException)
+            {
+                return NotFound();
+            }
+
+            logger.LogError(e, "Failed to get article images: {}", fileName);
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+
+        var articleImgExtension = Path.GetExtension(fileName);
+        string articleImgType = articleImgExtension switch
+        {
+            ".jpg" => MediaTypeNames.Image.Jpeg,
+            ".jpeg" => MediaTypeNames.Image.Jpeg,
+            ".png" => MediaTypeNames.Image.Png,
+            ".webp" => MediaTypeNames.Image.Webp,
+            _ => MediaTypeNames.Application.Octet 
+        };
+
+        return File(articleImgStream, articleImgType);
     }
 }
