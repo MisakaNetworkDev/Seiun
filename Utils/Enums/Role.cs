@@ -4,6 +4,7 @@ public enum UserRole
 {
     SuperAdmin,
     Admin,
+    Creator,
     User,
     Unknown
 }

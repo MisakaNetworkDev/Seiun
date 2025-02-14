@@ -31,5 +31,14 @@ public static class Constants
     public static class BucketNames
     {
         public const string Avatar = "avatars";
+        public const string ArticleImages = "article-images";
+    }
+
+    public static class Article
+    {
+        public const int MaxArticleImageSize = 8 * 1024 * 1024; // 8MB
+        public const int ArticleImageMaxWidth = 3 * 1024;
+        public const int ArticleImageMaxHeight = 3 * 1024;
+        public static readonly string[] AllowedArticleImageExtensions = [".jpg", ".jpeg", ".png", "webp"];
     }
 }
