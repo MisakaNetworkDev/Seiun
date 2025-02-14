@@ -22,13 +22,12 @@ namespace Seiun.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
             modelBuilder.Entity("Seiun.Entities.ArticleEntity", b =>
+            modelBuilder.Entity("Seiun.Entities.CommentEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
                     b.Property<string>("Article")
                         .IsRequired()
                         .HasColumnType("text");
@@ -54,11 +53,36 @@ namespace Seiun.Migrations
                 });
 
             modelBuilder.Entity("Seiun.Entities.PublicAnnouncementEntity", b =>
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DislikeCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("LikeCount")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("Seiun.Entities.CommentLikeEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
                     b.Property<Guid>("AdminId")
                         .HasColumnType("uuid");
 
@@ -79,15 +103,13 @@ namespace Seiun.Migrations
                 });
 
             modelBuilder.Entity("Seiun.Entities.UserArticleStatusEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("Action")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("CommentId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("LikedArticleId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("LikedTime")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("UserId")
@@ -95,7 +117,38 @@ namespace Seiun.Migrations
 
                     b.HasKey("Id");
 
+                    b.ToTable("CommentLike");
+                });
+
+            modelBuilder.Entity("Seiun.Entities.ReplyEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+                    b.Property<Guid>("LikedArticleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("LikedTime")
+                        .HasColumnType("timestamp with time zone");
+                    b.Property<Guid>("CommentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ParentReplyId")
+                        .HasColumnType("uuid");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
                     b.ToTable("UserArticleStatus");
+                    b.ToTable("Replies");
                 });
 
             modelBuilder.Entity("Seiun.Entities.UserEntity", b =>

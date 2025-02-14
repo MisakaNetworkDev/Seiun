@@ -8,4 +8,7 @@ public interface IRepositoryService
     IArticleRepository ArticleRepository { get; }
     IUserArticleStatusRepository UserArticleStatusRepository { get; }
     IPublicAnnouncementRepository PublicAnnouncementRepository { get; }
+    ICommentRepository CommentRepository { get; }
+    ICommentLikeRepository CommentLikeRepository { get; }
+    IReplyRepository ReplyRepository { get; }
 }
