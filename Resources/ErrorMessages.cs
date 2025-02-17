@@ -58,7 +58,7 @@ public static class ErrorMessages
             
             public const string CreateFailed = "error.controller.comment.create_failed";
             public const string CommentNotFound = "error.controller.comment.not_found";
-            public const string CommentIdRequired = "error.controller.comment.commentid_required"; 
+            public const string CommentDeleteFailed = "error.controller.comment.delete_failed";
             public const string GetListFailed = "error.controller.comment.get_list_failed"; 
             public const string AlreadyLiked = "error.controller.comment.already_liked"; 
             public const string GetLikeFailed = "error.controller.comment.like_failed"; 

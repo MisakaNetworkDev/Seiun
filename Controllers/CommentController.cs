@@ -16,7 +16,6 @@ namespace Seiun.Controllers;
 /// </summary>
 /// <param name="logger">日志</param>
 /// <param name="repository">仓库服务</param>
-/// <param name="jwt">JWT服务</param>
 [ApiController]
 [Route("/api/comment")]
 public class CommentController(ILogger<CommentController> logger, IRepositoryService repository)
@@ -35,13 +34,6 @@ public class CommentController(ILogger<CommentController> logger, IRepositorySer
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Create([FromBody] CommentCreate commentCreate)
     {
-        if (commentCreate == null)
-        {
-            return StatusCode(StatusCodes.Status400BadRequest,ResponseFactory.NewFailedBaseResponse(
-                StatusCodes.Status400BadRequest,
-                ErrorMessages.Controller.Comment.CreateFailed
-            ));
-        }
         var userId = User.GetUserId();
         if (userId == null)
         {
@@ -86,47 +78,50 @@ public class CommentController(ILogger<CommentController> logger, IRepositorySer
     /// <summary>
     /// 删除评论
     /// </summary>
-    /// <param name="Delete">评论Id</param>
+    /// <param name="id">评论Id</param>
     /// <returns>操作结果</returns>
-    [HttpDelete("delete", Name = "DeleteComment")]
+    [HttpDelete("delete/{id:guid}", Name = "DeleteComment")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Delete ([FromBody] Guid commentId)
+    public async Task<IActionResult> Delete([FromRoute] Guid id)
     {
-        if (commentId == Guid.Empty)
+        if (id == Guid.Empty)
         {
             return StatusCode(StatusCodes.Status400BadRequest, ResponseFactory.NewFailedBaseResponse(
                 StatusCodes.Status400BadRequest,
-                ErrorMessages.Controller.Comment.CommentIdRequired
+                ErrorMessages.ValidationError.CommentIdRequired
             ));
         }
-        var comment = await repository.CommentRepository.GetByIdAsync(commentId);
-        if(comment == null)
+
+        var comment = await repository.CommentRepository.GetByIdAsync(id);
+        if (comment == null)
         {
             return StatusCode(StatusCodes.Status403Forbidden, ResponseFactory.NewFailedBaseResponse(
                 StatusCodes.Status403Forbidden,
                 ErrorMessages.Controller.Comment.CommentNotFound
             ));
         }
+
         repository.CommentRepository.Delete(comment);
         if (await repository.CommentRepository.SaveAsync())
         {
             return Ok(ResponseFactory.NewSuccessBaseResponse(SuccessMessages.Controller.Comment.DeleteSuccess));
         }
-        logger.LogError("Comment delete failed. CommentID: {},",commentId);
+
+        logger.LogError("Comment delete failed. CommentID: {}", id);
         return StatusCode(StatusCodes.Status500InternalServerError, ResponseFactory.NewFailedBaseResponse(
             StatusCodes.Status500InternalServerError,
-            ErrorMessages.Controller.Comment.CreateFailed
+            ErrorMessages.Controller.Comment.CommentDeleteFailed
         ));
     }
 
     /// <summary>
     /// 获取评论详情
     /// </summary>
-    /// <param name="Detail">评论Id</param>
+    /// <param name="commentId">评论Id</param>
     /// <returns>操作结果</returns>
     [HttpGet("detail", Name = "DetailComment")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -139,7 +134,7 @@ public class CommentController(ILogger<CommentController> logger, IRepositorySer
         {
             return StatusCode(StatusCodes.Status400BadRequest, ResponseFactory.NewFailedBaseResponse(
                 StatusCodes.Status400BadRequest,
-                ErrorMessages.Controller.Comment.CommentIdRequired
+                ErrorMessages.ValidationError.CommentIdRequired
             ));
         }
         var comment = await repository.CommentRepository.GetByIdAsync(commentId);
@@ -179,7 +174,7 @@ public class CommentController(ILogger<CommentController> logger, IRepositorySer
         {
             return StatusCode(StatusCodes.Status400BadRequest, ResponseFactory.NewFailedBaseResponse(
                 StatusCodes.Status400BadRequest,
-                ErrorMessages.Controller.Comment.CommentIdRequired
+                ErrorMessages.ValidationError.CommentIdRequired
             ));
         }
 
@@ -188,14 +183,13 @@ public class CommentController(ILogger<CommentController> logger, IRepositorySer
         // if (post == null)
         // {
         //     return StatusCode(StatusCodes.Status403Forbidden, ResponseFactory.NewFailedBaseResponse(
-        //         StatusCodes.Status403Forbidden,
+        //         StatusCodes.Status403Forbidden,局部变量 IEnumerable<CommentEntity>? comments
         //         ErrorMessages.Controller.Post.PostNotFound
         //     ));
         // }
 
-        var comments = await repository.CommentRepository.GetListByPostIdAsync(postId);
-        
-        if (comments == null || !comments.Any())
+        var comments = (await repository.CommentRepository.GetListByPostIdAsync(postId)).ToList();
+        if (comments.Count == 0)
         {
             return Ok(CommentListResp.Success(
                 ErrorMessages.Controller.Comment.CommentNotFound,
@@ -234,7 +228,7 @@ public class CommentController(ILogger<CommentController> logger, IRepositorySer
         {
             return StatusCode(StatusCodes.Status400BadRequest, ResponseFactory.NewFailedBaseResponse(
                 StatusCodes.Status400BadRequest,
-                ErrorMessages.Controller.Comment.CommentIdRequired
+                ErrorMessages.ValidationError.CommentIdRequired
             ));
         }
 
@@ -313,7 +307,7 @@ public class CommentController(ILogger<CommentController> logger, IRepositorySer
         {
             return StatusCode(StatusCodes.Status400BadRequest, ResponseFactory.NewFailedBaseResponse(
                 StatusCodes.Status400BadRequest,
-                ErrorMessages.Controller.Comment.CommentIdRequired
+                ErrorMessages.ValidationError.CommentIdRequired
             ));
         }
 
@@ -378,7 +372,7 @@ public class CommentController(ILogger<CommentController> logger, IRepositorySer
         {
             return StatusCode(StatusCodes.Status400BadRequest, ResponseFactory.NewFailedBaseResponse(
                 StatusCodes.Status400BadRequest,
-                ErrorMessages.Controller.Comment.CommentIdRequired
+                ErrorMessages.ValidationError.CommentIdRequired
             ));
         }
 
@@ -454,7 +448,7 @@ public class CommentController(ILogger<CommentController> logger, IRepositorySer
         {
             return StatusCode(StatusCodes.Status400BadRequest, ResponseFactory.NewFailedBaseResponse(
                 StatusCodes.Status400BadRequest,
-                ErrorMessages.Controller.Comment.CommentIdRequired
+                ErrorMessages.ValidationError.CommentIdRequired
             ));
         }
 

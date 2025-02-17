@@ -15,7 +15,6 @@ namespace Seiun.Controllers;
 /// </summary>
 /// <param name="logger">日志</param>
 /// <param name="repository">仓库服务</param>
-/// <param name="jwt">JWT服务</param>
 [ApiController]
 [Route("/api/reply")]
 public class ReplyController(ILogger<ReplyController> logger, IRepositoryService repository)
@@ -34,14 +33,6 @@ public class ReplyController(ILogger<ReplyController> logger, IRepositoryService
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Create([FromBody] ReplyCreate replyCreate)
     {
-        if (replyCreate == null)
-        {
-            return BadRequest(ResponseFactory.NewFailedBaseResponse(
-                StatusCodes.Status400BadRequest,
-                ErrorMessages.Controller.Reply.CreateFailed
-            ));
-        }
-
         var userId = User.GetUserId();
         if (userId == null)
         {
@@ -73,7 +64,7 @@ public class ReplyController(ILogger<ReplyController> logger, IRepositoryService
             }
         }
 
-        var Reply = new ReplyEntity
+        var reply = new ReplyEntity
         {
             UserId = (Guid)userId,          
             Content = replyCreate.Content,  
@@ -82,7 +73,7 @@ public class ReplyController(ILogger<ReplyController> logger, IRepositoryService
             CreatedAt = DateTime.UtcNow    
         };
 
-        repository.ReplyRepository.Create(Reply);
+        repository.ReplyRepository.Create(reply);
         if (await repository.ReplyRepository.SaveAsync())
         {
             return Ok(ResponseFactory.NewSuccessBaseResponse(SuccessMessages.Controller.Reply.CreateSuccess));
@@ -100,14 +91,14 @@ public class ReplyController(ILogger<ReplyController> logger, IRepositoryService
     /// </summary>
     /// <param name="replyId">回复ID</param>
     /// <returns>操作结果</returns>
-    [HttpDelete("delete", Name = "DeleteReply")]
+    [HttpDelete("delete/{replyId:guid}", Name = "DeleteReply")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Delete([FromBody] Guid replyId)
+    public async Task<IActionResult> Delete([FromRoute] Guid replyId)
     {
         if(replyId == Guid.Empty)
         {
@@ -150,7 +141,7 @@ public class ReplyController(ILogger<ReplyController> logger, IRepositoryService
     /// <summary>
     /// 获取回复详情
     /// </summary>
-    /// <param name="Detail">回复Id</param>
+    /// <param name="replyId">回复Id</param>
     /// <returns>操作结果</returns>
     [HttpGet("detail" , Name = "ReplyDetail")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -214,11 +205,10 @@ public class ReplyController(ILogger<ReplyController> logger, IRepositoryService
             ));
         }
 
-        var replies = await repository.ReplyRepository.GetListByCommentIdAsync(commentId);
-        
-        if (replies == null || !replies.Any())
+        var replies = (await repository.ReplyRepository.GetListByCommentIdAsync(commentId)).ToList();
+        if (replies.Count == 0)
         {
-            return Ok(CommentListResp.Success(
+            return Ok(ReplyListResp.Success(
                 ErrorMessages.Controller.Comment.CommentNotFound,
                 []
             ));
@@ -236,5 +226,4 @@ public class ReplyController(ILogger<ReplyController> logger, IRepositoryService
 
         return Ok(ReplyListResp.Success(SuccessMessages.Controller.Reply.GetListSuccess, replyList));
     }
-
 }
