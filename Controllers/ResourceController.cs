@@ -12,7 +12,17 @@ namespace Seiun.Controllers;
 public class ResourceController(ILogger<UserController> logger, IRepositoryService repository, IJwtService jwt)
     : ControllerBase
 {
-    [HttpGet("/avatar/{fileName}")]
+    /// <summary>
+    /// 头像文件接口
+    /// </summary>
+    /// <param name="fileName">文件名</param>
+    /// <param name="size">尺寸参数</param>
+    /// <returns>头像文件</returns>
+    [HttpGet("avatar/{fileName}")]
+    [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAvatar(string fileName, [FromQuery] int size = 256)
     {
         if (string.IsNullOrWhiteSpace(fileName) || size <= 0)
