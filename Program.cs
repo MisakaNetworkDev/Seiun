@@ -9,8 +9,16 @@ using Seiun.Entities;
 using Seiun.Filters;
 using Seiun.Services;
 using Seiun.Utils;
+using Nest;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSingleton<IElasticClient>(provider =>
+{
+    var settings = new ConnectionSettings(new Uri("http://localhost:9200"))
+        .DefaultIndex("articles");
+    return new ElasticClient(settings);
+});
 
 // Use custom filter for parameter validation
 builder.Services.Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; });
@@ -47,6 +55,8 @@ builder.Services.AddSingleton(minioClient);
 // Inject repository service
 builder.Services.AddScoped<IRepositoryService, RepositoryService>();
 
+builder.Services.AddScoped<IArticleSearchService, ArticleSearchService>();
+
 // Use snake_case for JSON serialization
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
@@ -70,6 +80,28 @@ if (app.Environment.IsDevelopment())
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<SeiunDbContext>();
     dbContext.Database.Migrate();
+
+    // 示例代码（应用启动时运行一次）
+    var elasticClient = scope.ServiceProvider.GetRequiredService<IElasticClient>();
+    var createIndexResponse = await elasticClient.Indices.CreateAsync("articles", c => c
+        .Map<ArticleSearchEntity>(m => m
+            .Properties(props => props
+                .Text(t => t
+                    .Name(n => n.Article)  // 文章内容进行分词
+                    .Analyzer("standard")   // 使用标准分析器
+                )
+                .Keyword(k => k
+                    .Name(n => n.CreatorUserName) 
+                )
+                .Text(k => k
+                    .Name(n => n.CreatorNickName)
+                    .Analyzer("standard")
+                )
+                .Keyword(l => l
+                    .Name(n => n.ArticleId))
+            )
+        )
+    );
 }
 
 app.UseHttpsRedirection();
