@@ -56,7 +56,7 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 			Article = articleCreate.Article,
 			ImageFileNames = articleCreate.ImageNames,
 			CreatorId = userId.Value,
-			CreateTime = DateTime.UtcNow,
+			CreateTime = DateTime.Now,
 			IsPinned = false
 		};
 
@@ -287,7 +287,7 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 		}
 
 		article.IsPinned = true;
-		article.PinTime = DateTime.UtcNow;
+		article.PinTime = DateTime.Now;
 		repository.ArticleRepository.Update(article);
 		if(await repository.ArticleRepository.SaveAsync())
 		{

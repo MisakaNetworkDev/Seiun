@@ -46,7 +46,7 @@ public class PublicAnnouncementController(ILogger<PublicAnnouncementController> 
 		{
 			Title = PublicAnnouncementPublish.Title,
 			Content = PublicAnnouncementPublish.Content,
-			PublishTime = DateTime.UtcNow,
+			PublishTime = DateTime.Now,
 			AdminId = userId.Value	
 		};
 
