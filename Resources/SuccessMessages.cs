@@ -12,25 +12,6 @@ public static class SuccessMessages
             public const string AvatarUpdateSuccess = "controller.user.profile.avatar_update_success";
             public const string GetProfileSuccess = "controller.user.profile.get_success";
         }
-        public static class Article
-        {
-            public const string CreateSuccess = "controller.article.create.create_success";
-            public const string DeleteSuccess = "controller.article.delete.delete_success";
-            public const string PinSuccess = "controller.article.pin.pin_success";
-            public const string PinCancelSuccess = "controller.article.pin.pin_cancel_success";
-            public const string GetArticleListSuccess = "controller.article.GetArticleList.get_articlelist_success";
-            public const string GetArticleDetailSuccess = "controller.article.GetArticleDetail.get_articledetail_success";
-            public const string LikeSuccess = "controller.article.like.like_success";
-            public const string ArticleImgsUploadSuccess = "controller.article.articleimgs.upload_success";
-            public const string GetArticleImgNameListSuccess = "controller.article.articleimgs.get_articleimgnamelist_success";
-        }
-    
-        public static class PublicAnnouncement
-        {
-            public const string PublishSuccess = "controller.publicannouncement.publish.publish_success";
-            public const string DeleteSuccess = "controller.publicannouncement.delete.delete_success";
-            public const string GetPublicAnnouncementsSuccess = "controller.publicannouncement.get.get_publicannouncements_success";
-        }
         public static class Comment
         {
             public const string CreateSuccess = "controller.comment.create.create_success";
