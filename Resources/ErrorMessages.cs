@@ -84,6 +84,7 @@ public static class ErrorMessages
             public const string AnnouncementNotFound = "error.controller.publicannouncement.not_found";
             public const string NotAuthorized = "error.controller.publicannouncement.not_authorized";
             public const string DeleteFailed = "error.controller.publicannouncement.delete.delete_failed";
+        }
         public static class Comment
         {
             

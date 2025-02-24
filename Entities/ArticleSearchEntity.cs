@@ -1,5 +1,6 @@
 namespace Seiun.Entities;
 
+// 用于搜索文章的实体
 public class ArticleSearchEntity
 {
 	public required string Article {get; set;}

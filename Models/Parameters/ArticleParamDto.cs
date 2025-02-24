@@ -5,7 +5,7 @@ namespace Seiun.Models.Parameters;
 
 public class ArticleCreate
 {
-	// 文章markdown文件
+	// 文章markdown文本
 	[Required(ErrorMessage = ErrorMessages.ValidationError.ArticleRequired)]
 	public required string Article { get; set; }
 

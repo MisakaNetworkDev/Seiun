@@ -291,6 +291,11 @@ public class UserController(ILogger<UserController> logger, IRepositoryService r
         return Ok(ResponseFactory.NewSuccessBaseResponse(SuccessMessages.Controller.User.AvatarUpdateSuccess));
     }
 
+    /// <summary>
+    /// 获取用户信息
+    /// </summary>
+    /// <param name="userId">用户ID</param>
+    /// <returns>用户信息</returns>
     [HttpGet("profile/{userId:Guid}", Name = "GetProfile")]
     [ProducesResponseType(typeof(UserProfileResp), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(UserProfileResp), StatusCodes.Status404NotFound)]
