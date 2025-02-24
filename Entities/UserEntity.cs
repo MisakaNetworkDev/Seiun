@@ -34,4 +34,5 @@ public class UserEntity : BaseEntity
 
     public required UserRole Role { get; set; }
     public required bool IsBanned { get; set; }
+
 }

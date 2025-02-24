@@ -10,7 +10,6 @@ using Seiun.Filters;
 using Seiun.Services;
 using Seiun.Utils;
 using Nest;
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<IElasticClient>(provider =>
@@ -54,7 +53,6 @@ builder.Services.AddSingleton(minioClient);
 
 // Inject repository service
 builder.Services.AddScoped<IRepositoryService, RepositoryService>();
-
 builder.Services.AddScoped<IArticleSearchService, ArticleSearchService>();
 
 // Use snake_case for JSON serialization
