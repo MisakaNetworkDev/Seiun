@@ -25,6 +25,7 @@ public static class ErrorMessages
         public const string OverDescriptionLength = "error.validation.over_description_length";
         public const string OverEmailLength = "error.validation.over_email_length";
         public const string OverContentLength = "error.validation.over_content_length";
+        public const string OverTagNameLength = "error.validation.over_tag_length";
 
         public const string AtLeastOnePropertyRequired = "error.validation.at_least_one_property_is_required";
         public const string ActionTypeRequired = "erroe.validation.action_type_required";
@@ -35,6 +36,8 @@ public static class ErrorMessages
         public const string ContentRequired = "error.validation.Content_required";
 
         public const string PostIdRequired = "erroe.validation.post_id_required";
+
+        public const string WordIdRequired = "error.validation.word_id_required";
         
     }
 
@@ -84,9 +87,9 @@ public static class ErrorMessages
             public const string AnnouncementNotFound = "error.controller.publicannouncement.not_found";
             public const string NotAuthorized = "error.controller.publicannouncement.not_authorized";
             public const string DeleteFailed = "error.controller.publicannouncement.delete.delete_failed";
+        }
         public static class Comment
         {
-            
             public const string CreateFailed = "error.controller.comment.create_failed";
             public const string CommentNotFound = "error.controller.comment.not_found";
             public const string CommentDeleteFailed = "error.controller.comment.delete_failed";
@@ -109,6 +112,10 @@ public static class ErrorMessages
             public const string DeleteFailed = "error.controller.reply.delete_failed";
             public const string CommentNotFound = "error.controller.comment.not_found";
             public const string ParentReplyNotFound = "error.controller.reply.parent_reply_not_found";
+        }
+        public static class Word
+        {
+            public const string CreateFailed = "error.controller.word.create_failed";
         }
     }
 }

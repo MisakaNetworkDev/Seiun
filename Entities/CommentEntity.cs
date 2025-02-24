@@ -6,14 +6,10 @@ namespace Seiun.Entities;
 
 public class CommentEntity : BaseEntity
 {
-    [Required(ErrorMessage = ErrorMessages.ValidationError.UserIdRequired)]
     public required Guid UserId { get; set; }
 
-    [Required(ErrorMessage = ErrorMessages.ValidationError.ContentRequired)]
     [MaxLength(500, ErrorMessage = ErrorMessages.ValidationError.OverContentLength)]
     public required string Content { get; set; }
-
-    [Required(ErrorMessage = ErrorMessages.ValidationError.PostIdRequired)]
     public required Guid PostId { get; set; }
 
     [Range(0, int.MaxValue, ErrorMessage = ErrorMessages.ValidationError.InvalidLikeCount)]
@@ -27,13 +23,10 @@ public class CommentEntity : BaseEntity
 
 public class CommentLikeEntity : BaseEntity
 {
-    [Required(ErrorMessage = ErrorMessages.ValidationError.UserIdRequired)]
     public required Guid UserId { get; set; } 
 
-    [Required(ErrorMessage = ErrorMessages.ValidationError.CommentIdRequired)]
     public required Guid CommentId { get; set; } 
 
-    [Required(ErrorMessage = ErrorMessages.ValidationError.ActionTypeRequired)]
     public ActionType Action { get; set; } 
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow; 
