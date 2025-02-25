@@ -35,4 +35,5 @@ public class UserEntity : BaseEntity
     public required UserRole Role { get; set; }
     public required bool IsBanned { get; set; }
 
+    public virtual ICollection<UserTag> UserTags { get; set; } = new List<UserTag>();
 }

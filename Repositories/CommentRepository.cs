@@ -1,10 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Minio;
 using Seiun.Entities;
-using Seiun.Models.Responses;
 
 namespace Seiun.Repositories;
-
 
 public class CommentLikeRepository(SeiunDbContext dbContext , IMinioClient minioClient)
     : BaseRepository<CommentLikeEntity>(dbContext , minioClient) , ICommentLikeRepository
