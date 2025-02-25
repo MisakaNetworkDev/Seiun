@@ -44,5 +44,8 @@ public static class Constants
     public static class Word
     {
         public const int MaxTagNameLength = 10;
+        public const int MaxWordTextLength = 50;
+        public const int MaxWordPronunciationLength = 50;
+        public const int MaxWordDefinitionLength = 50;
     }
 }

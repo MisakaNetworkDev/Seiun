@@ -26,7 +26,12 @@ public static class ErrorMessages
         public const string OverEmailLength = "error.validation.over_email_length";
         public const string OverContentLength = "error.validation.over_content_length";
         public const string OverTagNameLength = "error.validation.over_tag_length";
-
+        public const string OverWordTextLength = "error.validation.over_word_text_length";
+        public const string OverWordDescriptionLength = "error.validation.over_word_description_length";
+        public const string OverPronunciationLength = "error.validation.over_pronunciation_length";
+        public const string OverWordDefinitionLength = "error.validation.over_word_definition_length";
+        public const string OverDefinitionLength = "error.validation.over_definition_length";
+        
         public const string AtLeastOnePropertyRequired = "error.validation.at_least_one_property_is_required";
         public const string ActionTypeRequired = "erroe.validation.action_type_required";
         public const string UserIdRequired = "error.validation.user_id_required";
@@ -36,9 +41,11 @@ public static class ErrorMessages
         public const string ContentRequired = "error.validation.Content_required";
 
         public const string PostIdRequired = "erroe.validation.post_id_required";
+        public const string PronunciationRequired = "error.validation.pronunciation_required";
 
         public const string WordIdRequired = "error.validation.word_id_required";
-        
+        public const string WordTextRequired = "error.validation.word_text_required";
+        public const string WordDefinitionRequired = "error.validation.word_definition_required";
     }
 
     public static class Controller
@@ -52,6 +59,7 @@ public static class ErrorMessages
             public const string ImageSizeTooLarge = "error.controller.any.image_size_too_large";
             public const string UnknownFileProcessingError = "error.controller.any.unknown_file_processing_error";
             public const string InvalidJwtToken = "error.controller.any.invalid_jwt_token";
+            public const string FileFormatNotJson = "error.controller.any.file_format_not_json";
         }
         public static class User
         {
@@ -116,6 +124,7 @@ public static class ErrorMessages
         public static class Word
         {
             public const string CreateFailed = "error.controller.word.create_failed";
+            public const string WordFileNotFound = "error.controller.word.word_file_not_found";
         }
     }
 }

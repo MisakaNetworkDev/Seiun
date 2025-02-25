@@ -3,7 +3,7 @@ using Seiun.Entities;
 using Seiun.Resources;
 using Seiun.Utils;
 
-public class Word : BaseEntity
+public class WordEntity : BaseEntity
 {
     [Required]
     public required string WordText { get; set; }
@@ -23,5 +23,5 @@ public class Tag : BaseEntity
     [MaxLength(Constants.Word.MaxTagNameLength, ErrorMessage = ErrorMessages.ValidationError.OverTagNameLength)]
     public required string Name { get; set; }
 
-    public virtual ICollection<Word> Words { get; set; } = new List<Word>();
+    public virtual ICollection<WordEntity> Words { get; set; } = new List<WordEntity>();
 }
