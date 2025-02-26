@@ -10,18 +10,13 @@ namespace Seiun.Controllers;
 public class WordController(ILogger<WordController> logger, IRepositoryService repository)
     : ControllerBase
 {
-    /// <summary>
-    /// 导入词库（通过上传 JSON 文件）
-    /// </summary>
-    /// <param name="file">上传的 JSON 文件</param>
-    /// <returns>导入结果</returns>
-    [HttpPost("import", Name = "ImportWordsFromJson")]
+    [HttpPost("importWordFromJson", Name = "ImportWordsFromJson")]
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ImportWordsFromJson(IFormFile file)
     {
-        if (file == null || file.Length == 0)
+        if (file is null || file.Length == 0)
         {
             return BadRequest(ResponseFactory.NewFailedBaseResponse(
                 StatusCodes.Status400BadRequest,
@@ -29,7 +24,7 @@ public class WordController(ILogger<WordController> logger, IRepositoryService r
             ));
         }
 
-        if (!Path.GetExtension(file.FileName).Equals(".json", StringComparison.CurrentCultureIgnoreCase))
+        if (!Path.GetExtension(file.FileName).Equals(".json", StringComparison.OrdinalIgnoreCase))
         {
             return BadRequest(ResponseFactory.NewFailedBaseResponse(
                 StatusCodes.Status400BadRequest,
@@ -39,57 +34,75 @@ public class WordController(ILogger<WordController> logger, IRepositoryService r
 
         try
         {
-            // 解析 JSON 文件
-            using var stream = new StreamReader(file.OpenReadStream());
-            var jsonContent = await stream.ReadToEndAsync();
-            var wordImportDto = JsonSerializer.Deserialize<WordImportDto>(jsonContent);
+            using var stream = file.OpenReadStream();
+            var wordImportDto = await JsonSerializer.DeserializeAsync<WordImportDto>(
+                stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-            if (wordImportDto?.Words == null || !wordImportDto.Words.Any())
+            if (wordImportDto?.Words is null || wordImportDto.Words.Count == 0)
             {
                 return BadRequest(ResponseFactory.NewFailedBaseResponse(
                     StatusCodes.Status400BadRequest,
-                    "词库数据不能为空"
+                    ErrorMessages.Controller.Word.WordsNotFound
                 ));
             }
 
-            // 保存每个单词到数据库
-            foreach (var wordDto in wordImportDto.Words)
+            var existingWords = await repository.WordRepository.GetExistingWordsAsync(
+                wordImportDto.Words.Select(dto => dto.WordText)
+            );
+
+            var existingWordSet = new HashSet<string>(existingWords);
+
+            if (existingWordSet.Count > 0)
             {
-                var word = new WordEntity
+                logger.LogInformation("Existing words: {ExistingWords}", string.Join(", ", existingWordSet));
+            }
+
+            var wordsToInsert = wordImportDto.Words
+                .Where(wordDto => !existingWordSet.Contains(wordDto.WordText)) 
+                .Select(wordDto => new WordEntity
                 {
                     WordText = wordDto.WordText,
                     Pronunciation = wordDto.Pronunciation,
                     Definition = wordDto.Definition,
-                    Tags = wordDto.Tags.Select(tagName => new Tag { Name = tagName }).ToList()
-                };
+                    Tags = wordDto.Tags.Select(tagName => new TagEntity { Name = tagName }).ToList(),
+                    Distractors = wordDto.Distractors.English
+                        .Select(distractor => new WordDistractor { DistractorText = distractor, Language = "English" })
+                        .Union(wordDto.Distractors.Chinese
+                            .Select(distractor => new WordDistractor { DistractorText = distractor, Language = "Chinese" }))
+                        .ToList()
+                }).ToList();
 
-                repository.WordRepository.Create(word);
+            if (wordsToInsert.Count == 0)
+            {
+                return Ok(ResponseFactory.NewSuccessBaseResponse(ErrorMessages.Controller.Word.NoNewWords));
             }
 
+            repository.WordRepository.BulkInsert(wordsToInsert);
             if (await repository.WordRepository.SaveAsync())
             {
-                return Ok(ResponseFactory.NewSuccessBaseResponse("词库导入成功"));
+                return Ok(ResponseFactory.NewSuccessBaseResponse($"成功导入 {wordsToInsert.Count} 个新单词！"));
             }
 
+            logger.LogError("Words import failed");
             return StatusCode(StatusCodes.Status500InternalServerError, ResponseFactory.NewFailedBaseResponse(
                 StatusCodes.Status500InternalServerError,
-                "词库导入失败"
+                ErrorMessages.Controller.Word.ImportFailed
             ));
         }
         catch (JsonException ex)
         {
-            logger.LogError(ex, "JSON 解析失败");
+            logger.LogError(ex, "Parse JSON data failed: {Message}", ex.Message);
             return BadRequest(ResponseFactory.NewFailedBaseResponse(
                 StatusCodes.Status400BadRequest,
-                "JSON 格式不正确"
+                ErrorMessages.Controller.Word.ParseJsonFailed
             ));
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "导入词库失败");
+            logger.LogError(ex, "Import words failed: {Message}", ex.Message);
             return StatusCode(StatusCodes.Status500InternalServerError, ResponseFactory.NewFailedBaseResponse(
                 StatusCodes.Status500InternalServerError,
-                "导入过程中发生错误"
+                ErrorMessages.Controller.Word.ImportFailed
             ));
         }
     }

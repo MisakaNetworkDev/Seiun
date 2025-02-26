@@ -10,5 +10,5 @@ public class UserTag : BaseEntity
     public required Guid TagId { get; set; }
 
     public virtual required UserEntity User { get; set; }
-    public virtual required Tag Tag { get; set; }
+    public virtual required TagEntity Tag { get; set; }
 }

@@ -125,6 +125,10 @@ public static class ErrorMessages
         {
             public const string CreateFailed = "error.controller.word.create_failed";
             public const string WordFileNotFound = "error.controller.word.word_file_not_found";
+            public const string WordsNotFound = "error.controller.word.words_not_found";
+            public const string ImportFailed = "error.controller.word.import_failed";
+            public const string NoNewWords = "error.controller.word.no_new_words";
+            public const string ParseJsonFailed = "error.controller.word.parse_json_failed";
         }
     }
 }

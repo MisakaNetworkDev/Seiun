@@ -49,5 +49,9 @@ public static class SuccessMessages
             public const string GetListSuccess = "controller.reply.get.list_success";
             public const string DetailSuccess = "controller.reply.detail.detail_success";
         }
+        public static class Word
+        {
+            public const string ImportSuccess = "controller.word.import.import_success";
+        }
     }
 }
