@@ -102,14 +102,6 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status500InternalServerError)]
 	public async Task<IActionResult> UploadArticleImg([FromForm] List<IFormFile>? articleImgFiles)
 	{
-		if(articleImgFiles == null || articleImgFiles.Count == 0)
-		{
-			return BadRequest(ResponseFactory.NewFailedBaseResponse(
-                StatusCodes.Status400BadRequest,
-                ErrorMessages.Controller.Any.FileNotUploaded
-            ));
-		}
-
 		var userId = User.GetUserId();
 		if(userId == null)
 		{
@@ -117,6 +109,14 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 				StatusCodes.Status403Forbidden,
 				ErrorMessages.Controller.Any.InvalidJwtToken
 			));
+		}
+
+		if(articleImgFiles == null || articleImgFiles.Count == 0)
+		{
+			return BadRequest(ResponseFactory.NewFailedBaseResponse(
+                StatusCodes.Status400BadRequest,
+                ErrorMessages.Controller.Any.FileNotUploaded
+            ));
 		}
 
 		List<string> articleImgNames = [];

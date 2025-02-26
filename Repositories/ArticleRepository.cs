@@ -23,7 +23,7 @@ public class ArticleRepository(SeiunDbContext dbContext, IMinioClient minioClien
 
 		if(!from.HasValue)
 		{
-			from = DateTime.UtcNow;
+			from = DateTime.Now;
 		}
 
 		var articleList = await DbContext.Articles
