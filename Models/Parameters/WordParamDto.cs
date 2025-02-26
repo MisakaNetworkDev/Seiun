@@ -19,5 +19,14 @@ public class WordDto
     [Required(ErrorMessage = ErrorMessages.ValidationError.WordDefinitionRequired)]
     [MaxLength(500, ErrorMessage = ErrorMessages.ValidationError.OverDefinitionLength)]
     public required string Definition { get; set; }
+
     public required List<string> Tags { get; set; }
+
+    public required DistractorDto Distractors { get; set; }
+}
+
+public class DistractorDto
+{
+    public required List<string> English { get; set; } = [];
+    public required List<string> Chinese { get; set; } = [];
 }
