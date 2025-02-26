@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using Seiun.Entities;
 using Seiun.Resources;
 
-public class UserWordRecord : BaseEntity
+public class UserWordRecordEntity : BaseEntity
 {
     [Required(ErrorMessage = ErrorMessages.ValidationError.UserIdRequired)]
     public required Guid UserId { get; set; }
