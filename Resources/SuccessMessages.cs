@@ -52,6 +52,13 @@ public static class SuccessMessages
         public static class Word
         {
             public const string ImportSuccess = "controller.word.import.import_success";
+            public const string GetReviewingWordSuccess = "controller.word.getreviewingwordlist.get_reviewingwordlist_success";
+        }
+
+        public static class UserWordRecord
+        {
+            public const string CreateSuccess = "controller.userwordrecord.create.create_success";
+            public const string UpdateSuccess = "controller.userwordrecord.update.update_success";
         }
     }
 }

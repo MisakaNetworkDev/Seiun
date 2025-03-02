@@ -26,34 +26,26 @@ public class ArticleRepository(SeiunDbContext dbContext, IMinioClient minioClien
 			from = DateTime.Now;
 		}
 
-		var articleList = await DbContext.Articles
+		var articleIds = await DbContext.Articles
 			.Where(a => a.CreateTime <= from )
 			.OrderByDescending(a => a.CreateTime)
 			.Take(queryLength)
+			.Select(a => a.Id)
 			.ToListAsync();
 		
-		List<Guid> articleIds = [];
-		foreach(var article in articleList)
-		{
-			articleIds.Add(article.Id);
-		}
 		return articleIds;
 	}
 
 	public async Task<List<Guid>?> GetArticleListByUserIdAsync(Guid userId)
 	{
-		var articleList = await DbContext.Articles
+		var articleIds = await DbContext.Articles
 			.Where(a => a.CreatorId == userId)
 			.OrderByDescending(a => a.IsPinned == true)
 			.ThenByDescending(a => a.PinTime)
 			.ThenByDescending(a => a.CreateTime)
+			.Select(a => a.Id)
 			.ToListAsync();
 
-		List<Guid> articleIds = [];
-		foreach(var article in articleList)
-		{
-			articleIds.Add(article.Id);
-		}
 		return articleIds;
 	}
 
