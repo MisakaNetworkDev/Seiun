@@ -68,6 +68,15 @@ public class ReviewWordController(ILogger<ReviewWordController> logger, IReposit
 			var newRecords = new List<UserWordRecordEntity>();
 			foreach (var id in wordIDs)
 			{
+				var word = await repository.WordRepository.GetByIdAsync(id);
+				if(word == null)
+				{
+					return BadRequest(ResponseFactory.NewFailedBaseResponse(
+						StatusCodes.Status400BadRequest,
+						ErrorMessages.ValidationError.WordIdError
+					));
+				}
+
 				newRecords.Add(new UserWordRecordEntity
 				{
 					WordId = id,
@@ -76,6 +85,7 @@ public class ReviewWordController(ILogger<ReviewWordController> logger, IReposit
 					NextReviewTime = DateTime.Now.AddDays(1),
 					WrongCount = 1,
 					LastStudyTime = DateTime.Now,
+					Word = word
 				});
 			}
 

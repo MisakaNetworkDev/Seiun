@@ -46,6 +46,7 @@ public static class ErrorMessages
         public const string WordIdRequired = "error.validation.word_id_required";
         public const string WordTextRequired = "error.validation.word_text_required";
         public const string WordDefinitionRequired = "error.validation.word_definition_required";
+        public const string WordIdError = "error.validation.word_id_error";
     }
 
     public static class Controller
