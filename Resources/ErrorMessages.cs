@@ -129,6 +129,26 @@ public static class ErrorMessages
             public const string ImportFailed = "error.controller.word.import_failed";
             public const string NoNewWords = "error.controller.word.no_new_words";
             public const string ParseJsonFailed = "error.controller.word.parse_json_failed";
+            public const string GetReviewingWordFailed = "error.controller.word.getreviewingwordlist.get_reviewingwordlist_failed";
+        }
+
+        public static class UserWordRecord
+        {
+            public const string CreateFailed = "error.controller.userwordrecord.create_failed";
+            public const string NotFoundRecords = "error.controller.userwordrecord.records_not_found";
+
+            public const string UpdateFailed = "error.controller.userwordrecord.update_failed";
+        }
+
+        public static class Tag
+        {
+            public const string TagNotFound = "error.controller.tag.not_found";
+        }
+
+        public static class UserTag
+        {
+            public const string CreateFailed = "error.controller.user_tag.create_failed";
+            public const string DeleteFailed = "error.controller.user_tag.delete_failed";
         }
     }
 }
