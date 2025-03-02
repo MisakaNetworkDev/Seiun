@@ -106,4 +106,7 @@ public class WordController(ILogger<WordController> logger, IRepositoryService r
             ));
         }
     }
+
+    // // 获取对应词库单词数量
+    // [HttpGet("count")]
 }

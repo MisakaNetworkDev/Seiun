@@ -130,5 +130,16 @@ public static class ErrorMessages
             public const string NoNewWords = "error.controller.word.no_new_words";
             public const string ParseJsonFailed = "error.controller.word.parse_json_failed";
         }
+
+        public static class Tag
+        {
+            public const string TagNotFound = "error.controller.tag.not_found";
+        }
+
+        public static class UserTag
+        {
+            public const string CreateFailed = "error.controller.user_tag.create_failed";
+            public const string DeleteFailed = "error.controller.user_tag.delete_failed";
+        }
     }
 }

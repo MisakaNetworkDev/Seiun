@@ -12,10 +12,6 @@ public class SeiunDbContext(DbContextOptions<SeiunDbContext> options) : DbContex
     public required DbSet<CommentEntity> Comments { get; set; }
     public required DbSet<CommentLikeEntity> CommentLike { get; set; }
     public required DbSet<ReplyEntity> Replies { get; set; }
-
-    // protected override void OnModelCreating(ModelBuilder modelBuilder)
-    // {
-    //     base.OnModelCreating(modelBuilder);
-    //     
-    // }
+    public required DbSet<UserTagEntity> UserTagEntity { get; set; }
+    public required DbSet<TagEntity> TagEntity { get; set; }
 }

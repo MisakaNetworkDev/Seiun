@@ -13,4 +13,5 @@ public interface IRepositoryService
     IReplyRepository ReplyRepository { get; }
     IWordRepository WordRepository { get; }
     ITagRepository TagRepository { get; }
+    IUserTagRepository UserTagRepository { get; }
 }

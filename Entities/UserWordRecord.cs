@@ -18,6 +18,5 @@ public class UserWordRecordEntity : BaseEntity
 
     public DateTime LastStudyTime { get; set; } = DateTime.Now;   
 
-    public virtual required UserEntity User { get; set; }
     public virtual required WordEntity Word { get; set; }
 }

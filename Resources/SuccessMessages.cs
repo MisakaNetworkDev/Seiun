@@ -53,5 +53,14 @@ public static class SuccessMessages
         {
             public const string ImportSuccess = "controller.word.import.import_success";
         }
+        public static class UserTag
+        {
+            public const string CreateSuccess = "controller.usertag.create.create_success";
+            public const string DeleteSuccess = "controller.usertag.delete.delete_success";
+            public const string GetListSuccess = "controller.usertag.get.list_success";
+            public const string DetailSuccess = "controller.usertag.detail.detail_success";
+        }
+
+        
     }
 }
