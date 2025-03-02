@@ -12,6 +12,7 @@ public interface IRepositoryService
     ICommentLikeRepository CommentLikeRepository { get; }
     IReplyRepository ReplyRepository { get; }
     IWordRepository WordRepository { get; }
+    IUserWordRepository UserWordRepository { get; }
     ITagRepository TagRepository { get; }
     IUserTagRepository UserTagRepository { get; }
 }

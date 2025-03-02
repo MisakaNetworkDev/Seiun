@@ -1,7 +1,8 @@
 using System.ComponentModel.DataAnnotations;
-using Seiun.Entities;
+using Seiun.Utils.Enums;
 using Seiun.Resources;
 
+namespace Seiun.Entities;
 public class UserWordRecordEntity : BaseEntity
 {
     [Required(ErrorMessage = ErrorMessages.ValidationError.UserIdRequired)]
@@ -10,7 +11,7 @@ public class UserWordRecordEntity : BaseEntity
     [Required(ErrorMessage = ErrorMessages.ValidationError.WordIdRequired)]
     public required Guid WordId { get; set; }
 
-    public required int Stage { get; set; }             
+    public required WordStage Stage { get; set; }             
 
     public DateTime NextReviewTime { get; set; } = DateTime.Now.AddDays(1);   
 

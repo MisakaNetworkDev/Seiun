@@ -1,6 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Seiun.Entities;
 using Seiun.Resources;
 using Seiun.Utils;
 
