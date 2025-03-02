@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Seiun.Models.Responses;
 using Seiun.Resources;
 using Seiun.Services;
+using Seiun.Entities;
 
 namespace Seiun.Controllers;
 
