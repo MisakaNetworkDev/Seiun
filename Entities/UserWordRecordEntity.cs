@@ -11,6 +11,7 @@ public class UserWordRecordEntity : BaseEntity
     [Required(ErrorMessage = ErrorMessages.ValidationError.WordIdRequired)]
     public required Guid WordId { get; set; }
 
+    
     public required WordStage Stage { get; set; }             
 
     public DateTime NextReviewTime { get; set; } = DateTime.Now.AddDays(1);   
