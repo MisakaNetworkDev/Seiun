@@ -15,4 +15,5 @@ public interface IRepositoryService
     IUserWordRepository UserWordRepository { get; }
     ITagRepository TagRepository { get; }
     IUserTagRepository UserTagRepository { get; }
+    IStudyWordRepository StudyWordRepository { get; }
 }

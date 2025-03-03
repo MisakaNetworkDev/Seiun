@@ -154,7 +154,7 @@ public class ReviewWordController(ILogger<ReviewWordController> logger, IReposit
 				r.Stage = WordStage.Mastered;
 				r.WrongCount = 0;
 			} else {
-				r.Stage = WordStage.NewlyLearned;
+				r.Stage = WordStage.learning;
 			}
 		});
 
