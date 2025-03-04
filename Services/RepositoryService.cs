@@ -11,8 +11,8 @@ public class RepositoryService(SeiunDbContext seiunDbContext, IMinioClient minio
     private readonly Lazy<IArticleRepository> _articleRepository = new(() => new ArticleRepository(seiunDbContext, minioClient));
     public IArticleRepository ArticleRepository => _articleRepository.Value;
 
-    private readonly Lazy<IUserArticleStatusRepository> _UserArticleStatusRepository = new(() => new UserArticleStatusRepository(seiunDbContext, minioClient));
-    public IUserArticleStatusRepository UserArticleStatusRepository => _UserArticleStatusRepository.Value;
+    private readonly Lazy<IArticleLikeRepository> _ArticleLikeRepository = new(() => new UserArticleStatusRepository(seiunDbContext, minioClient));
+    public IArticleLikeRepository ArticleLikeRepository => _ArticleLikeRepository.Value;
 
     private readonly Lazy<IPublicAnnouncementRepository> _publicAnnouncementRepository = new(() => new PublicAnnouncementRepository(seiunDbContext, minioClient));
     public IPublicAnnouncementRepository PublicAnnouncementRepository => _publicAnnouncementRepository.Value;
@@ -33,9 +33,4 @@ public class RepositoryService(SeiunDbContext seiunDbContext, IMinioClient minio
 
     private readonly Lazy<IUserTagRepository> _userTagRepository = new(() => new UserTagRepository(seiunDbContext, minioClient));
     public IUserTagRepository UserTagRepository => _userTagRepository.Value;
-    private readonly Lazy<IUserWordRepository> _UserWordRepository = new(() => new UserWordRepository(seiunDbContext, minioClient));
-    public IUserWordRepository UserWordRepository => _UserWordRepository.Value;
-
-    private readonly Lazy<IStudyWordRepository> _StudyWordRepository = new(() => new StudyWordRepository(seiunDbContext, minioClient));
-    public IStudyWordRepository StudyWordRepository => _StudyWordRepository.Value;
 }   

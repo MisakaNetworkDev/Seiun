@@ -15,3 +15,13 @@ public class ArticleEntity: BaseEntity
 	// 置顶时间
 	public DateTime? PinTime { get; set; }
 }
+
+public class ArticleLikeEntity: BaseEntity
+{
+	// 用户ID
+	public required Guid UserId { get; set; }
+	// 文章ID
+	public required Guid LikedArticleId {get; set; }
+	// 点赞时间
+	public required DateTime LikedTime {get; set; }
+}
