@@ -396,7 +396,7 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 					articleIds = await repository.ArticleRepository.GetArticleListByUserIdAsync(userId!.Value);
 					break;
 				case "liked":
-					articleIds = await repository.UserArticleStatusRepository.GetArticleListByLikedRecordAsync(userId!.Value);
+					articleIds = await repository.ArticleLikeRepository.GetArticleListByLikedRecordAsync(userId!.Value);
 					break;
 				default:
 					return BadRequest(ArticleListResp.Fail(
@@ -444,7 +444,7 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 			));
 		}
 
-		var articleLikedCount = await repository.UserArticleStatusRepository.GetUserCountByLikedRecordAsync(articleId);
+		var articleLikedCount = await repository.ArticleLikeRepository.GetUserCountByLikedRecordAsync(articleId);
 
 		return Ok(ArticleDetailResp.Success(article, articleLikedCount));
 	}
@@ -481,7 +481,7 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 			));
 		}
 
-		var likedArticle = await repository.UserArticleStatusRepository.GetArticleByLikedRecordAsync(userId.Value, articleId);
+		var likedArticle = await repository.ArticleLikeRepository.GetArticleByLikedRecordAsync(userId.Value, articleId);
 		if(likedArticle != null)
 		{
 			return BadRequest(ResponseFactory.NewFailedBaseResponse(
@@ -490,15 +490,15 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 			));
 		}
 
-		var UserArticleStatus = new UserArticleStatusEntity
+		var UserArticleStatus = new ArticleLikeEntity
 		{
 			UserId = userId.Value,
 			LikedArticleId = articleId,
 			LikedTime = DateTime.UtcNow
 		};
 
-		repository.UserArticleStatusRepository.Create(UserArticleStatus);
-		if(await repository.UserArticleStatusRepository.SaveAsync())
+		repository.ArticleLikeRepository.Create(UserArticleStatus);
+		if(await repository.ArticleLikeRepository.SaveAsync())
 		{
 			return Ok(ResponseFactory.NewSuccessBaseResponse(SuccessMessages.Controller.Article.LikeSuccess));
 		}
@@ -542,7 +542,7 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 			));
 		}
 
-		var likedArticle = await repository.UserArticleStatusRepository.GetArticleByLikedRecordAsync(userId.Value, articleId);
+		var likedArticle = await repository.ArticleLikeRepository.GetArticleByLikedRecordAsync(userId.Value, articleId);
 		if(likedArticle == null)
 		{	
 			return BadRequest(ResponseFactory.NewFailedBaseResponse(
@@ -551,8 +551,8 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 			));
 		}
 
-		repository.UserArticleStatusRepository.Delete(likedArticle);
-		if(await repository.UserArticleStatusRepository.SaveAsync())
+		repository.ArticleLikeRepository.Delete(likedArticle);
+		if(await repository.ArticleLikeRepository.SaveAsync())
 		{
 			return Ok(ResponseFactory.NewSuccessBaseResponse(SuccessMessages.Controller.Article.LikeSuccess));
 		}

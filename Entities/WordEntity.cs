@@ -22,13 +22,9 @@ public class WordEntity : BaseEntity
 
 public class WordDistractor : BaseEntity
 {
-    [Required]
-    public required string DistractorText { get; set; }  
+    public required Guid DistractorId { get; set; }
 
-    [Required]
-    public required string Language { get; set; }  
-
-    public virtual WordEntity Word { get; set; } = null!;
+    public virtual WordEntity DistractedWord { get; set; } = null!;
 }
 
 public class TagEntity : BaseEntity
@@ -39,3 +35,4 @@ public class TagEntity : BaseEntity
     
     public virtual ICollection<WordEntity> Words { get; set; } = [];
 }
+

@@ -6,14 +6,12 @@ public interface IRepositoryService
 {
     IUserRepository UserRepository { get; }
     IArticleRepository ArticleRepository { get; }
-    IUserArticleStatusRepository UserArticleStatusRepository { get; }
+    IArticleLikeRepository ArticleLikeRepository { get; }
     IPublicAnnouncementRepository PublicAnnouncementRepository { get; }
     ICommentRepository CommentRepository { get; }
     ICommentLikeRepository CommentLikeRepository { get; }
     IReplyRepository ReplyRepository { get; }
     IWordRepository WordRepository { get; }
-    IUserWordRepository UserWordRepository { get; }
     ITagRepository TagRepository { get; }
     IUserTagRepository UserTagRepository { get; }
-    IStudyWordRepository StudyWordRepository { get; }
 }

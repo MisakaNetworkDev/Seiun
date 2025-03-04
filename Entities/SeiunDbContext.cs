@@ -6,7 +6,7 @@ public class SeiunDbContext(DbContextOptions<SeiunDbContext> options) : DbContex
 {
     public required DbSet<UserEntity> Users { get; init; }
     public required DbSet<ArticleEntity> Articles { get; init; }
-    public required DbSet<UserArticleStatusEntity> UserArticleStatus {get; init;}
+    public required DbSet<ArticleLikeEntity> ArticleLikes { get; init; }
     public required DbSet<PublicAnnouncementEntity> PublicAnnouncements {get; init;}
     
     public required DbSet<CommentEntity> Comments { get; set; }
@@ -15,7 +15,7 @@ public class SeiunDbContext(DbContextOptions<SeiunDbContext> options) : DbContex
     public required DbSet<UserTagEntity> UserTagEntity { get; set; }
     public required DbSet<TagEntity> TagEntity { get; set; }
 
-    public required DbSet<UserWordRecordEntity> UserWordRecords { get; set; }
+    public required DbSet<FinishedWordRecordEntity> UserWordRecords { get; set; }
     public required DbSet<StudyStageEntity> StudyStage { get; set; }
 
     // protected override void OnModelCreating(ModelBuilder modelBuilder)
