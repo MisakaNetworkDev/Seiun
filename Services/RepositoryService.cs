@@ -33,4 +33,7 @@ public class RepositoryService(SeiunDbContext seiunDbContext, IMinioClient minio
 
     private readonly Lazy<IUserTagRepository> _userTagRepository = new(() => new UserTagRepository(seiunDbContext, minioClient));
     public IUserTagRepository UserTagRepository => _userTagRepository.Value;
+
+    private readonly Lazy<ISessionRepository> _sessionRepository = new(() => new SessionRepository(seiunDbContext, minioClient));
+    public ISessionRepository SessionRepository => _sessionRepository.Value;
 }   

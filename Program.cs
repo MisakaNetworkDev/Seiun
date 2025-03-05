@@ -53,7 +53,11 @@ builder.Services.AddSingleton(minioClient);
 
 // Inject repository service
 builder.Services.AddScoped<IRepositoryService, RepositoryService>();
+// Inject search service
 builder.Services.AddScoped<IArticleSearchService, ArticleSearchService>();
+// Inject current study session service
+// 单例
+builder.Services.AddSingleton<ICurrentStudySessionService, CurrentStudySessionService>();
 
 // Use snake_case for JSON serialization
 builder.Services.AddControllers().AddJsonOptions(options =>
@@ -67,6 +71,25 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<SeiunDbContext>(options => { options.UseNpgsql(connectionString); });
 
 var app = builder.Build();
+
+// 子线程定时20小时自动清理session
+Thread ClearSession = new(() =>
+{
+    var time = new System.Timers.Timer
+    {
+        Interval = 3600000 * 20
+    };
+    time.Elapsed += (sender, args) =>
+    {
+        var currentStudySession = app.Services.GetService<CurrentStudySessionService>();
+        currentStudySession?.ClearSession();
+    };
+    time.Start();
+})
+{
+    IsBackground = true
+};
+ClearSession.Start();
 
 if (app.Environment.IsDevelopment())
 {
