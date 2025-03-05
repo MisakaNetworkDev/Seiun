@@ -35,6 +35,9 @@ public static class ErrorMessages
         public const string AtLeastOnePropertyRequired = "error.validation.at_least_one_property_is_required";
         public const string ActionTypeRequired = "erroe.validation.action_type_required";
         public const string UserIdRequired = "error.validation.user_id_required";
+        public const string UserTagIdRequired = "error.validation.user_tag_id_required";
+        public const string UserTagTotalDaysRequired = "error.validation.tag_total_days_required";
+        public const string UserTagDailyPlanRequired = "error.validation.tag_daily_plan_required";
 
         public const string CommentIdRequired = "error.validation.comment_id_required";
 
@@ -133,6 +136,10 @@ public static class ErrorMessages
             public const string GetReviewingWordFailed = "error.controller.word.getreviewingwordlist.get_reviewingwordlist_failed";
         }
 
+        public static class Tag
+        {
+            public const string TagNotFound = "error.controller.tag.not_found";
+        }
         public static class UserTag
         {
             public const string CreateFailed = "error.controller.user_tag.create_failed";
