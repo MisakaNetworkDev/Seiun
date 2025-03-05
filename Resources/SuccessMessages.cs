@@ -56,6 +56,7 @@ public static class SuccessMessages
             public const string DeleteSuccess = "controller.usertag.delete.delete_success";
             public const string GetListSuccess = "controller.usertag.get.list_success";
             public const string DetailSuccess = "controller.usertag.detail.detail_success";
+            public const string GetDetailSuccess = "controller.usertag.get.detail_success";
         }
 
         

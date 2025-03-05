@@ -178,15 +178,14 @@ public class CommentController(ILogger<CommentController> logger, IRepositorySer
             ));
         }
 
-        // 检查文章是否存在（取消注释并根据需要修改）
-        // var post = await repository.PostRepository.GetByIdAsync(postId);
-        // if (post == null)
-        // {
-        //     return StatusCode(StatusCodes.Status403Forbidden, ResponseFactory.NewFailedBaseResponse(
-        //         StatusCodes.Status403Forbidden,局部变量 IEnumerable<CommentEntity>? comments
-        //         ErrorMessages.Controller.Post.PostNotFound
-        //     ));
-        // }
+        var article = await repository.ArticleRepository.GetByIdAsync(postId);
+        if (article == null)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, ResponseFactory.NewFailedBaseResponse(
+                StatusCodes.Status403Forbidden,
+                ErrorMessages.Controller.Article.ArticleNotFound
+            ));
+        }
 
         var comments = (await repository.CommentRepository.GetListByPostIdAsync(postId)).ToList();
         if (comments.Count == 0)
