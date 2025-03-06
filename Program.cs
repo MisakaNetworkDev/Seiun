@@ -79,10 +79,18 @@ Thread ClearSession = new(() =>
     {
         Interval = 3600000 * 20
     };
-    time.Elapsed += (sender, args) =>
+    time.Elapsed += async (sender, args) =>
     {
         var currentStudySession = app.Services.GetService<CurrentStudySessionService>();
-        currentStudySession?.ClearSession();
+        if (currentStudySession != null)
+        {
+            var sessionRepository = app.Services.GetService<RepositoryService>()?.SessionRepository;
+            var loggger = app.Services.GetService<ILogger>();
+            if(sessionRepository != null && loggger!= null)
+            {
+                await currentStudySession.ClearSessionAsync(sessionRepository, loggger);
+            }
+        }
     };
     time.Start();
 })
