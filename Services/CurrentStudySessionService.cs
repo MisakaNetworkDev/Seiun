@@ -1,59 +1,63 @@
 using Seiun.Entities;
 using Seiun.Repositories;
-using System.Collections.Concurrent;
+using Seiun.Controllers;
 
 namespace Seiun.Services;
 
-public class CurrentStudySessionService(IServiceProvider serviceProvider) : ICurrentStudySessionService
+public class CurrentStudySessionService : ICurrentStudySessionService
 {
-	private readonly ConcurrentDictionary<Guid,Queue<WordEntity>> _CurrentStudySessions = new();
-	private readonly IServiceProvider _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-	private readonly Lock _lock = new();
+	private readonly Dictionary<Guid,Queue<WordEntity>> _CurrentStudySessions = [];
 
 	// 添加Session
-    public void AddSession(Guid SessionId, Queue<WordEntity> Words)
+    public void AddSession(Guid SessionId, Queue<WordEntity> Words, ILogger<SessionController> logger)
 	{
-		if(_CurrentStudySessions.ContainsKey(SessionId)==false)
+		if(_CurrentStudySessions.ContainsKey(SessionId))
 		{
-			_CurrentStudySessions.TryAdd(SessionId,Words);
+			logger.LogWarning("Session {} already exists",SessionId);
+			return;
 		}
+		_CurrentStudySessions.Add(SessionId,Words);
 	}
 
     // 获取下一个单词
-	public WordEntity? GetNextWord(Guid SessionId)
+	public WordEntity? GetNextWord(Guid SessionId, ILogger<SessionController> logger)
 	{
-		if(_CurrentStudySessions.ContainsKey(SessionId))
+		if(_CurrentStudySessions.ContainsKey(SessionId)==false)
 		{
-			return _CurrentStudySessions[SessionId].Dequeue();
-		}
-		else
-		{
+			logger.LogWarning("Session {} does not exist",SessionId);
 			return null;
 		}
+		return _CurrentStudySessions[SessionId].Peek();
 	}
 
     // 插入错误单词到队尾
-	public void InsertWord(Guid SessionId, WordEntity Word)
+	public void InsertWord(Guid SessionId, ILogger<SessionController> logger)
 	{
-		if(_CurrentStudySessions.ContainsKey(SessionId))
-		{
-			_CurrentStudySessions[SessionId].Enqueue(Word);
+		if(_CurrentStudySessions.ContainsKey(SessionId)==false)
+		{	
+			logger.LogWarning("Session {} does not exist",SessionId);
+			return;
 		}
+		var Word = _CurrentStudySessions[SessionId].Dequeue();
+		_CurrentStudySessions[SessionId].Enqueue(Word);
 	}
 
     // 会话结束，移除Session
-	public void RemoveSession(Guid SessionId)
+	public void RemoveSession(Guid SessionId, ILogger<SessionController> logger)
 	{
 		if(_CurrentStudySessions.ContainsKey(SessionId)&&_CurrentStudySessions[SessionId].Count==0)
 		{
-			_CurrentStudySessions.TryRemove(SessionId,out _ );
+			_CurrentStudySessions.Remove(SessionId);
+		}
+		else
+		{
+			logger.LogWarning("Session {} does not exist or not finished",SessionId);
 		}
 	}
 
 	// 定时清理Session
-	public async void ClearSession()
+	public async Task ClearSessionAsync(ISessionRepository sessionRepository, ILogger logger)
 	{
-		var sessionRepository = _serviceProvider.GetRequiredService<ISessionRepository>();
 		var endTime = DateTime.Now;
 		foreach(var Session in _CurrentStudySessions)
 		{
@@ -63,8 +67,12 @@ public class CurrentStudySessionService(IServiceProvider serviceProvider) : ICur
 				TimeSpan hoursSpan = new(endTime.Ticks-userSession.SessionAt.Ticks);
 				if(hoursSpan.TotalHours>20)
 				{
-					_CurrentStudySessions.TryRemove(Session.Key,out _ );
+					_CurrentStudySessions.Remove(Session.Key);
 				}
+			}
+			else
+			{
+				logger.LogWarning("SessionEntity does not exist for Session {}",Session.Key);
 			}
 		}
 	}
