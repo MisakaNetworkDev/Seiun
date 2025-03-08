@@ -59,6 +59,10 @@ public static class SuccessMessages
             public const string GetDetailSuccess = "controller.usertag.get.detail_success";
         }
 
-        
+        public static class StudySession
+        {
+            public const string GetSessionDetailSuccess = "controller.studysession.get.detail_success";
+            public const string GetNextWordSuccess = "controller.studysession.get.next_word_success";
+        }
     }
 }
