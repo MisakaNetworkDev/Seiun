@@ -147,4 +147,57 @@ public class SessionController(ILogger<SessionController> logger, IRepositorySer
 			));
 		}
 	}	
+
+	/// <summary>
+ 	/// 获取下一个单词
+	/// </summary>
+	/// <param name="sessionId">会话ID</param>
+	/// <returns>下一个单词信息</returns>
+	[HttpGet("correct", Name = "Correct")]
+	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+	[Authorize(Roles = $"{nameof(UserRole.User)},{nameof(UserRole.Creator)}{nameof(UserRole.Admin)},{nameof(UserRole.SuperAdmin)}")]
+	[ProducesResponseType(typeof(GetNextWordResp), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(GetNextWordResp), StatusCodes.Status403Forbidden)]
+	[ProducesResponseType(typeof(GetNextWordResp), StatusCodes.Status404NotFound)]
+	[ProducesResponseType(typeof(GetNextWordResp), StatusCodes.Status500InternalServerError)]
+	public async Task<IActionResult> Correct([FromBody] WordResultDto wordResultDto){
+        var userId = User.GetUserId();
+		if (userId == null)
+		{
+			return StatusCode(StatusCodes.Status403Forbidden, ResponseFactory.NewFailedBaseResponse(
+				StatusCodes.Status403Forbidden,
+				ErrorMessages.Controller.Any.InvalidJwtToken
+			));
+		}
+
+		var session = await repository.SessionRepository.GetByIdAsync(wordResultDto.SessionId);
+		if(session==null || session.UserId!=userId.Value)
+		{
+			return NotFound(GetNextWordResp.Fail(
+				StatusCodes.Status404NotFound,
+				ErrorMessages.Controller.Session.NotFoundSession
+			));
+		}
+
+		var finishedRecord = new FinishedWordRecordEntity
+			{
+				UserId = userId.Value,
+				SessionId = wordResultDto.SessionId,
+				WordId = wordResultDto.WordId,
+				FinishedAt = DateTime.UtcNow,
+			};
+		repository.FinishedWordRepository.Create(finishedRecord);
+		if(await repository.FinishedWordRepository.SaveAsync())
+		{
+			return Ok(ResponseFactory.NewSuccessBaseResponse(SuccessMessages.Controller.Word.FinishedWordCreatSuccess));
+		}
+		
+		logger.LogError("User {} finished word {} failed", userId, wordResultDto.WordId);
+        return StatusCode(StatusCodes.Status500InternalServerError, ResponseFactory.NewFailedBaseResponse(
+            StatusCodes.Status500InternalServerError,
+            ErrorMessages.Controller.Word.FinishedWordCreatFailed
+        ));
+	}
+
+	/// 结束会话学完了的
 }

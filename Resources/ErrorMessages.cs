@@ -50,6 +50,8 @@ public static class ErrorMessages
         public const string WordTextRequired = "error.validation.word_text_required";
         public const string WordDefinitionRequired = "error.validation.word_definition_required";
         public const string WordIdError = "error.validation.word_id_error";
+
+        public const string SessionIdRequired = "error.validation.session_id_required";
     }
 
     public static class Controller
@@ -134,6 +136,8 @@ public static class ErrorMessages
             public const string NoNewWords = "error.controller.word.no_new_words";
             public const string ParseJsonFailed = "error.controller.word.parse_json_failed";
             public const string GetReviewingWordFailed = "error.controller.word.getreviewingwordlist.get_reviewingwordlist_failed";
+
+            public const string FinishedWordCreatFailed = "error.controller.word.finishedword.create_failed";
         }
 
         public static class Tag

@@ -97,4 +97,5 @@ public class CurrentStudySessionService : ICurrentStudySessionService
 			logger.LogInformation("Session cleared successfully");
 		}
 	}
+	
 }

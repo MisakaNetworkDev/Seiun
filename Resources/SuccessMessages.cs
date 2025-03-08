@@ -64,5 +64,11 @@ public static class SuccessMessages
             public const string GetSessionDetailSuccess = "controller.studysession.get.detail_success";
             public const string GetNextWordSuccess = "controller.studysession.get.next_word_success";
         }
+
+        public static class Word
+        {
+            public const string GetReviewingWordSuccess = "controller.word.get.reviewing_word_success";
+            public const string FinishedWordCreatSuccess = "controller.word.finishedword.create.create_success";
+        }
     }
 }
