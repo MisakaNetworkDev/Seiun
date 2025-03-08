@@ -37,6 +37,9 @@ public class RepositoryService(SeiunDbContext seiunDbContext, IMinioClient minio
     private readonly Lazy<ISessionRepository> _sessionRepository = new(() => new SessionRepository(seiunDbContext, minioClient));
     public ISessionRepository SessionRepository => _sessionRepository.Value;
 
-    private readonly Lazy<ErrorWordRepository> _ErrorWordRepository = new(() => new ErrorWordRepository(seiunDbContext, minioClient));
-    public IErrorWordRepository ErrorWordRepository => _ErrorWordRepository.Value;
+    private readonly Lazy<IErrorWordRepository> _errorWordRepository = new(() => new ErrorWordRepository(seiunDbContext, minioClient));
+    public IErrorWordRepository ErrorWordRepository => _errorWordRepository.Value;
+
+    private readonly Lazy<IFinishedWordRepository> _finishedWordRepository = new(() => new FinishedWordRepository(seiunDbContext, minioClient));
+    public IFinishedWordRepository FinishedWordRepository => _finishedWordRepository.Value;
 }   
