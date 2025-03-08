@@ -144,6 +144,14 @@ public static class ErrorMessages
         {
             public const string CreateFailed = "error.controller.user_tag.create_failed";
             public const string DeleteFailed = "error.controller.user_tag.delete_failed";
+            public const string UserTagNotFound = "error.controller.user_tag.not_found";
+        }
+        public static class Session
+        {
+            public const string StartFailed = "error.controller.session.start_failed";
+            public const string NotFoundSession = "error.controller.session.not_found_session";
+            public const string GetNextWordFailed = "error.controller.session.get_next_word_failed";
+            public const string NotFindNextWord = "error.controller.session.not_find_next_word";
         }
     }
 }
