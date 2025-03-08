@@ -9,14 +9,15 @@ public class CurrentStudySessionService : ICurrentStudySessionService
 	private readonly Dictionary<Guid,Queue<WordEntity>> _CurrentStudySessions = [];
 
 	// 添加Session
-    public void AddSession(Guid SessionId, Queue<WordEntity> Words, ILogger<SessionController> logger)
+    public bool AddSession(Guid SessionId, Queue<WordEntity> Words, ILogger<SessionController> logger)
 	{
 		if(_CurrentStudySessions.ContainsKey(SessionId))
 		{
 			logger.LogWarning("Session {} already exists",SessionId);
-			return;
+			return false;
 		}
 		_CurrentStudySessions.Add(SessionId,Words);
+		return true;
 	}
 
     // 获取下一个单词
@@ -59,21 +60,41 @@ public class CurrentStudySessionService : ICurrentStudySessionService
 	public async Task ClearSessionAsync(ISessionRepository sessionRepository, ILogger logger)
 	{
 		var endTime = DateTime.Now;
+		var clearingSessions = new List<Guid>();
 		foreach(var Session in _CurrentStudySessions)
 		{
-			var userSession = await sessionRepository.GetByIdAsync(Session.Key);
-			if(userSession!=null)
+			try
 			{
-				TimeSpan hoursSpan = new(endTime.Ticks-userSession.SessionAt.Ticks);
-				if(hoursSpan.TotalHours>20)
+				var userSession = await sessionRepository.GetByIdAsync(Session.Key);
+				if(userSession!=null)
 				{
-					_CurrentStudySessions.Remove(Session.Key);
+					TimeSpan hoursSpan = endTime - userSession.SessionAt;
+					if(hoursSpan.TotalHours>20)
+					{
+						clearingSessions.Add(Session.Key);
+						sessionRepository.Delete(userSession);
+					}
+				}
+				else
+				{
+					logger.LogWarning("SessionEntity does not exist for Session {}",Session.Key);
 				}
 			}
-			else
+			catch(Exception e)
 			{
-				logger.LogWarning("SessionEntity does not exist for Session {}",Session.Key);
+				logger.LogWarning(e,"Error when clearing session {}",Session.Key);
+				continue;
 			}
+		}
+		
+		foreach(var SessionId in clearingSessions)
+		{
+			_CurrentStudySessions.Remove(SessionId);
+		}
+
+		if(await sessionRepository.SaveAsync())
+		{
+			logger.LogInformation("Session cleared successfully");
 		}
 	}
 }

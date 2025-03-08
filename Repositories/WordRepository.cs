@@ -18,6 +18,19 @@ public class WordRepository(SeiunDbContext dbContext, IMinioClient minioClient)
             .Select(w => w.WordText)
             .ToListAsync();
     }
+
+    public async Task<List<WordEntity>> GetWordsByTagAsync(string tagName, Guid userId, int num)
+    {
+        var finishedWords = await DbContext.UserWordRecords
+            .Where(a => a.UserId == userId)
+            .ToListAsync();
+
+        return await DbContext.Words
+           .Where(w => w.Tags.Any(t => t.Name == tagName))
+           .Where(w => !finishedWords.Any(f => f.WordId == w.Id))
+           .Take(num)
+           .ToListAsync();
+    } 
 }
 
 public class TagRepository(SeiunDbContext dbContext, IMinioClient minioClient)

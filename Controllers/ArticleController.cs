@@ -365,7 +365,6 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 	/// <param name="userId">用户ID</param>
 	/// <returns>文章列表</returns>
 	[HttpGet("list", Name = "List")]
-	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 	[ProducesResponseType(typeof(ArticleListResp), StatusCodes.Status200OK)]
 	[ProducesResponseType(typeof(ArticleListResp), StatusCodes.Status400BadRequest)]
 	[ProducesResponseType(typeof(ArticleListResp), StatusCodes.Status404NotFound)]	
@@ -430,7 +429,6 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 	/// <param name="articleId">文章ID</param>
 	/// <returns>文章详情</returns>
 	[HttpGet("detail/{articleId:Guid}", Name = "Detail")]
-	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 	[ProducesResponseType(typeof(ArticleDetailResp), StatusCodes.Status200OK)]
 	[ProducesResponseType(typeof(ArticleDetailResp), StatusCodes.Status404NotFound)]
 	public async Task<IActionResult> GetArticleDetail(Guid articleId)
@@ -572,7 +570,6 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 	/// <param name="pageSize">每页文章列表数目</param>
 	/// <returns>查询结果</returns>
 	[HttpGet("search", Name = "Search")]
-	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 	[ProducesResponseType(typeof(ArticleListResp), StatusCodes.Status200OK)]
 	[ProducesResponseType(typeof(ArticleListResp), StatusCodes.Status404NotFound)]
 	public async Task<IActionResult> SearchArticle([FromQuery] string keyword, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)

@@ -121,7 +121,6 @@ public class PublicAnnouncementController(ILogger<PublicAnnouncementController> 
 	/// </summary>
 	/// <returns>获取结果</returns>
 	[HttpGet("get", Name = "GetPublicAnnouncement")]
-	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 	[ProducesResponseType(typeof(PublicAnnouncementResp), StatusCodes.Status200OK)]
 	[ProducesResponseType(typeof(PublicAnnouncementResp), StatusCodes.Status404NotFound)]
 	public async Task<IActionResult> GetPublicAnnouncement()

@@ -15,6 +15,8 @@ public class SeiunDbContext(DbContextOptions<SeiunDbContext> options) : DbContex
     public required DbSet<SessionEntity> Sessions { get; set; }
     public required DbSet<UserTagEntity> UserTag { get; set; }
     public required DbSet<TagEntity> Tag { get; set; }
+    public required DbSet<WordEntity> Words { get; set; }
+    public required DbSet<ErrorWordRecordEntity> ErrorWords { get; set; }
   
     // protected override void OnModelCreating(ModelBuilder modelBuilder)
     // {
