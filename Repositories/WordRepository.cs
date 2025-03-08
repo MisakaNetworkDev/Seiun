@@ -28,6 +28,8 @@ public class WordRepository(SeiunDbContext dbContext, IMinioClient minioClient)
         return await DbContext.Words
            .Where(w => w.Tags.Any(t => t.Name == tagName))
            .Where(w => !finishedWords.Any(f => f.WordId == w.Id))
+           .Include(w => w.Tags)
+           .Include(w => w.Distractors)
            .Take(num)
            .ToListAsync();
     } 

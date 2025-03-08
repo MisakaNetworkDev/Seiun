@@ -38,11 +38,7 @@ public sealed class StartStudyResp(int code, string message, SessionDetail? sess
 
 public class NextWordDetail
 {
-	public required string WordText { get; set; }
-    public string? Pronunciation { get; set; }	
-	public required string Definition { get; set; }
-	public required List<string> Tags { get; set; }
-    public required List<WordEntity> Distractors { get; set; }
+	public required WordEntity Options { get; set; }
 }
 
 public sealed class GetNextWordResp(int code, string message, NextWordDetail? nextWordDetail)
@@ -53,11 +49,7 @@ public sealed class GetNextWordResp(int code, string message, NextWordDetail? ne
 		return new GetNextWordResp(StatusCodes.Status200OK, SuccessMessages.Controller.StudySession.GetNextWordSuccess,
 			new NextWordDetail
 			{
-				WordText = nextWord.WordText,
-				Pronunciation = nextWord.Pronunciation,
-				Definition = nextWord.Definition,
-				Tags = [.. nextWord.Tags.Select(t => t.Name)],
-				Distractors = [.. nextWord.Distractors.Select(t => t.DistractedWord)]
+				Options = nextWord
 			});
 	}
 
