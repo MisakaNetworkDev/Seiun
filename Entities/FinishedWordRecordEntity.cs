@@ -1,6 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-using Seiun.Resources;
-
 namespace Seiun.Entities;
 public class FinishedWordRecordEntity : BaseEntity
 {

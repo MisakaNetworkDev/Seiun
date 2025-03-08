@@ -31,8 +31,19 @@ public class CurrentStudySessionService : ICurrentStudySessionService
 		return _CurrentStudySessions[SessionId].Peek();
 	}
 
+	// 删除正确单词
+	public void DeleteCorrectWord(Guid SessionId, ILogger<SessionController> logger)
+	{
+		if(_CurrentStudySessions.ContainsKey(SessionId)==false)
+		{	
+			logger.LogWarning("Session {} does not exist",SessionId);
+			return;
+		}
+		_CurrentStudySessions[SessionId].Dequeue();
+	}
+
     // 插入错误单词到队尾
-	public void InsertWord(Guid SessionId, ILogger<SessionController> logger)
+	public void InsertErrorWord(Guid SessionId, ILogger<SessionController> logger)
 	{
 		if(_CurrentStudySessions.ContainsKey(SessionId)==false)
 		{	
