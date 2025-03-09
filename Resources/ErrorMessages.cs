@@ -26,16 +26,9 @@ public static class ErrorMessages
         public const string OverEmailLength = "error.validation.over_email_length";
         public const string OverContentLength = "error.validation.over_content_length";
         public const string OverTagNameLength = "error.validation.over_tag_length";
-        public const string OverWordTextLength = "error.validation.over_word_text_length";
-        public const string OverWordDescriptionLength = "error.validation.over_word_description_length";
-        public const string OverPronunciationLength = "error.validation.over_pronunciation_length";
-        public const string OverWordDefinitionLength = "error.validation.over_word_definition_length";
-        public const string OverDefinitionLength = "error.validation.over_definition_length";
         
         public const string AtLeastOnePropertyRequired = "error.validation.at_least_one_property_is_required";
-        public const string ActionTypeRequired = "erroe.validation.action_type_required";
         public const string UserIdRequired = "error.validation.user_id_required";
-        public const string UserTagIdRequired = "error.validation.user_tag_id_required";
         public const string UserTagTotalDaysRequired = "error.validation.tag_total_days_required";
         public const string UserTagDailyPlanRequired = "error.validation.tag_daily_plan_required";
 
@@ -43,13 +36,9 @@ public static class ErrorMessages
 
         public const string ContentRequired = "error.validation.Content_required";
 
-        public const string PostIdRequired = "erroe.validation.post_id_required";
-        public const string PronunciationRequired = "error.validation.pronunciation_required";
+        public const string ArticleIdRequired = "erroe.validation.post_id_required";
 
         public const string WordIdRequired = "error.validation.word_id_required";
-        public const string WordTextRequired = "error.validation.word_text_required";
-        public const string WordDefinitionRequired = "error.validation.word_definition_required";
-        public const string WordIdError = "error.validation.word_id_error";
 
         public const string SessionIdRequired = "error.validation.session_id_required";
     }
@@ -74,6 +63,7 @@ public static class ErrorMessages
             public const string ProfileUpdateFailed = "error.controller.user.profile.update_failed";
             public const string PhoneNumberDuplicated = "error.controller.user.register.phone_number_already_exists";
             public const string RegisterFailed = "error.controller.user.register.register_failed";
+            public const string UserCheckInFailed = "error.controller.user.checkin.checkin_failed";
         }
         public static class Article
         {
@@ -121,23 +111,14 @@ public static class ErrorMessages
         {
             public const string CreateFailed = "error.controller.reply.create_failed";
             public const string ReplyIdRequired = "error.controller.reply.replyid_required";
-            public const string ReplyNotFound = "error.controller.reply.not_found";
-            public const string NoPermission = "error.controller.reply.no_permission";
             public const string DeleteFailed = "error.controller.reply.delete_failed";
-            public const string CommentNotFound = "error.controller.comment.not_found";
             public const string ParentReplyNotFound = "error.controller.reply.parent_reply_not_found";
+            public const string ReplyNotFound = "error.controller.reply.not_found";
         }
         public static class Word
         {
-            public const string CreateFailed = "error.controller.word.create_failed";
-            public const string WordFileNotFound = "error.controller.word.word_file_not_found";
-            public const string WordsNotFound = "error.controller.word.words_not_found";
-            public const string ImportFailed = "error.controller.word.import_failed";
-            public const string NoNewWords = "error.controller.word.no_new_words";
-            public const string ParseJsonFailed = "error.controller.word.parse_json_failed";
-            public const string GetReviewingWordFailed = "error.controller.word.getreviewingwordlist.get_reviewingwordlist_failed";
-
             public const string FinishedWordCreatFailed = "error.controller.word.finishedword.create_failed";
+            public const string ErrorWordCreatFailed = "error.controller.word.errorword.create_failed";
         }
 
         public static class Tag

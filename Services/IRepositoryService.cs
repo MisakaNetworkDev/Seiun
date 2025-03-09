@@ -18,4 +18,6 @@ public interface IRepositoryService
     IErrorWordRepository ErrorWordRepository { get; }
 
     IFinishedWordRepository FinishedWordRepository { get; }
+
+    IUserCheckInRepository UserCheckInRepository { get; }
 }

@@ -100,10 +100,10 @@ public class SessionController(ILogger<SessionController> logger, IRepositorySer
 	[HttpGet("get-nextword/{sessionId:Guid}", Name = "GetNextWord")]
 	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 	[Authorize(Roles = $"{nameof(UserRole.User)},{nameof(UserRole.Creator)}{nameof(UserRole.Admin)},{nameof(UserRole.SuperAdmin)}")]
-	[ProducesResponseType(typeof(GetNextWordResp), StatusCodes.Status200OK)]
-	[ProducesResponseType(typeof(GetNextWordResp), StatusCodes.Status403Forbidden)]
+	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status403Forbidden)]
 	[ProducesResponseType(typeof(GetNextWordResp), StatusCodes.Status404NotFound)]
-	[ProducesResponseType(typeof(GetNextWordResp), StatusCodes.Status500InternalServerError)]
+	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status500InternalServerError)]
 	public async Task<IActionResult> GetNextWord(Guid sessionId){
         var userId = User.GetUserId();
 		if (userId == null)
@@ -149,17 +149,17 @@ public class SessionController(ILogger<SessionController> logger, IRepositorySer
 	}	
 
 	/// <summary>
- 	/// 获取下一个单词
+	/// 提交单词结果
 	/// </summary>
-	/// <param name="sessionId">会话ID</param>
-	/// <returns>下一个单词信息</returns>
+	/// <param name="wordResultDto"></param>
+	/// <returns>操作结果</returns>
 	[HttpGet("correct", Name = "Correct")]
 	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 	[Authorize(Roles = $"{nameof(UserRole.User)},{nameof(UserRole.Creator)}{nameof(UserRole.Admin)},{nameof(UserRole.SuperAdmin)}")]
-	[ProducesResponseType(typeof(GetNextWordResp), StatusCodes.Status200OK)]
-	[ProducesResponseType(typeof(GetNextWordResp), StatusCodes.Status403Forbidden)]
-	[ProducesResponseType(typeof(GetNextWordResp), StatusCodes.Status404NotFound)]
-	[ProducesResponseType(typeof(GetNextWordResp), StatusCodes.Status500InternalServerError)]
+	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status403Forbidden)]
+	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status404NotFound)]
+	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status500InternalServerError)]
 	public async Task<IActionResult> Correct([FromBody] WordResultDto wordResultDto){
         var userId = User.GetUserId();
 		if (userId == null)
@@ -173,10 +173,13 @@ public class SessionController(ILogger<SessionController> logger, IRepositorySer
 		var session = await repository.SessionRepository.GetByIdAsync(wordResultDto.SessionId);
 		if(session==null || session.UserId!=userId.Value)
 		{
-			return NotFound(GetNextWordResp.Fail(
-				StatusCodes.Status404NotFound,
-				ErrorMessages.Controller.Session.NotFoundSession
-			));
+			if(session==null || session.UserId!=userId.Value)
+		{
+			return StatusCode(StatusCodes.Status404NotFound, ResponseFactory.NewFailedBaseResponse(
+                StatusCodes.Status404NotFound,
+                ErrorMessages.Controller.Session.NotFoundSession
+            ));
+		}
 		}
 
 		var finishedRecord = new FinishedWordRecordEntity
@@ -186,6 +189,7 @@ public class SessionController(ILogger<SessionController> logger, IRepositorySer
 				WordId = wordResultDto.WordId,
 				FinishedAt = DateTime.UtcNow,
 			};
+		currentStudySession.DeleteCorrectWord(session.Id, logger);
 		repository.FinishedWordRepository.Create(finishedRecord);
 		if(await repository.FinishedWordRepository.SaveAsync())
 		{
@@ -199,5 +203,121 @@ public class SessionController(ILogger<SessionController> logger, IRepositorySer
         ));
 	}
 
-	/// 结束会话学完了的
+	/// <summary>
+	/// 提交单词错误
+	/// </summary>
+	/// <param name="wordResultDto"></param>
+	/// <returns>操作结果</returns>
+	[HttpGet("error", Name = "Error")]
+	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+	[Authorize(Roles = $"{nameof(UserRole.User)},{nameof(UserRole.Creator)}{nameof(UserRole.Admin)},{nameof(UserRole.SuperAdmin)}")]
+	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status403Forbidden)]
+	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status404NotFound)]
+	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status500InternalServerError)]
+	public async Task<IActionResult> Error([FromBody] WordResultDto wordResultDto){
+        var userId = User.GetUserId();
+		if (userId == null)
+		{
+			return StatusCode(StatusCodes.Status403Forbidden, ResponseFactory.NewFailedBaseResponse(
+				StatusCodes.Status403Forbidden,
+				ErrorMessages.Controller.Any.InvalidJwtToken
+			));
+        }
+		var session = await repository.SessionRepository.GetByIdAsync(wordResultDto.SessionId);
+		if(session==null || session.UserId!=userId.Value)
+		{
+			return StatusCode(StatusCodes.Status404NotFound, ResponseFactory.NewFailedBaseResponse(
+                StatusCodes.Status404NotFound,
+                ErrorMessages.Controller.Session.NotFoundSession
+            ));
+		}
+
+		var errorRecord = new ErrorWordRecordEntity
+			{
+				UserId = userId.Value,
+				SessionId = wordResultDto.SessionId,
+				WordId = wordResultDto.WordId,
+			};
+		repository.ErrorWordRepository.Create(errorRecord);
+		currentStudySession.InsertErrorWord(session.Id, logger);
+		if(await repository.ErrorWordRepository.SaveAsync())
+		{
+			return Ok(ResponseFactory.NewSuccessBaseResponse(SuccessMessages.Controller.Word.ErrorWordRecordCreatSuccess));
+		}
+
+		logger.LogError("User {} error word {} failed", userId, wordResultDto.WordId);
+        return StatusCode(StatusCodes.Status500InternalServerError, ResponseFactory.NewFailedBaseResponse(
+            StatusCodes.Status500InternalServerError,
+            ErrorMessages.Controller.Word.ErrorWordCreatFailed
+        ));
+	}
+
+
+	/// <summary>
+	/// 结束会话
+	/// </summary>
+	/// <returns>操作结果</returns>
+	[HttpGet("over-session", Name = "Over-Session")]
+	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+	[Authorize(Roles = $"{nameof(UserRole.User)},{nameof(UserRole.Creator)}{nameof(UserRole.Admin)},{nameof(UserRole.SuperAdmin)}")]
+	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status403Forbidden)]
+	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status404NotFound)]
+	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status500InternalServerError)]
+	public async Task<IActionResult> OverSession()
+	{
+		var userId = User.GetUserId();
+		if (userId == null)
+		{
+			return StatusCode(StatusCodes.Status403Forbidden, ResponseFactory.NewFailedBaseResponse(
+				StatusCodes.Status403Forbidden,
+				ErrorMessages.Controller.Any.InvalidJwtToken
+			));
+        }
+
+		var user = await repository.UserRepository.GetByIdAsync(userId.Value);
+		if(user==null)
+		{
+			return StatusCode(StatusCodes.Status404NotFound, ResponseFactory.NewFailedBaseResponse(
+                StatusCodes.Status404NotFound,
+                ErrorMessages.Controller.User.UserNotFound
+            ));
+		}
+
+		var session = await repository.SessionRepository.GetSessionByUserIdAsync(userId.Value);
+		if(session==null || session.UserId!=userId.Value)
+		{
+			return StatusCode(StatusCodes.Status404NotFound, ResponseFactory.NewFailedBaseResponse(
+                StatusCodes.Status404NotFound,
+                ErrorMessages.Controller.Session.NotFoundSession
+            ));
+		}
+
+		// TODO: 用户打卡
+		var UserCheckInEntity = new UserCheckInEntity
+			{
+				UserId = userId.Value,
+				CheckInDate = DateTime.Now,
+				User = user
+			};
+		if (await repository.UserCheckInRepository.CheckInTodayAsync(userId.Value))
+		{
+			repository.UserCheckInRepository.Create(UserCheckInEntity);
+		}
+		else
+		{
+			repository.UserCheckInRepository.Update(UserCheckInEntity);
+		}
+
+		if(!await repository.UserCheckInRepository.SaveAsync())
+		{
+			return StatusCode(StatusCodes.Status500InternalServerError, ResponseFactory.NewFailedBaseResponse(
+                StatusCodes.Status500InternalServerError,
+                ErrorMessages.Controller.User.UserCheckInFailed
+            ));
+		}
+		currentStudySession.RemoveSession(session.Id, logger);
+		return Ok(ResponseFactory.NewSuccessBaseResponse(SuccessMessages.Controller.Session.SessionOverSuccess));
+	}
 }
