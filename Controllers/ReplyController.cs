@@ -7,6 +7,7 @@ using Seiun.Models.Responses;
 using Seiun.Resources;
 using Seiun.Services;
 using Seiun.Utils;
+using Seiun.Utils.Enums;
 
 namespace Seiun.Controllers;
 
@@ -27,6 +28,7 @@ public class ReplyController(ILogger<ReplyController> logger, IRepositoryService
     /// <returns>操作结果</returns>
     [HttpPost("create", Name = "CreateReply")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(Roles = $"{nameof(UserRole.User)},{nameof(UserRole.Creator)}{nameof(UserRole.Admin)},{nameof(UserRole.SuperAdmin)}")]
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status403Forbidden)]
@@ -93,6 +95,7 @@ public class ReplyController(ILogger<ReplyController> logger, IRepositoryService
     /// <returns>操作结果</returns>
     [HttpDelete("delete/{replyId:guid}", Name = "DeleteReply")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(Roles = $"{nameof(UserRole.User)},{nameof(UserRole.Creator)}{nameof(UserRole.Admin)},{nameof(UserRole.SuperAdmin)}")]
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status403Forbidden)]
@@ -145,7 +148,8 @@ public class ReplyController(ILogger<ReplyController> logger, IRepositoryService
     /// <returns>操作结果</returns>
     [HttpGet("detail" , Name = "ReplyDetail")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    [ProducesResponseType(typeof(BaseResp), StatusCodes.Status200OK)]
+    [Authorize(Roles = $"{nameof(UserRole.User)},{nameof(UserRole.Creator)}{nameof(UserRole.Admin)},{nameof(UserRole.SuperAdmin)}")]
+    [ProducesResponseType(typeof(ReplyDetailResp), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Detail([FromQuery] Guid replyId)
@@ -183,7 +187,8 @@ public class ReplyController(ILogger<ReplyController> logger, IRepositoryService
     /// <returns>操作结果</returns>
     [HttpGet("list",Name = "ReplyList")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    [ProducesResponseType(typeof(BaseResp), StatusCodes.Status200OK)]
+    [Authorize(Roles = $"{nameof(UserRole.User)},{nameof(UserRole.Creator)}{nameof(UserRole.Admin)},{nameof(UserRole.SuperAdmin)}")]
+    [ProducesResponseType(typeof(ReplyListResp), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> List([FromQuery] Guid commentId)
