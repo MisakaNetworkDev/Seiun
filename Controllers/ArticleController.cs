@@ -10,6 +10,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Seiun.Utils;
 using Nest;
+using OpenAI;
+using System.ClientModel;
+using OpenAI.Chat;
+using System.Text.Json;
 
 namespace Seiun.Controllers;
 /// <summary>
@@ -18,7 +22,7 @@ namespace Seiun.Controllers;
 /// <param name="logger">日志</param>
 /// <param name="repository">仓库服务</param>
 [ApiController,Route("/api/article")]
-public class ArticleController(ILogger<ArticleController> logger, IRepositoryService repository, IElasticClient elasticClient, IArticleSearchService articleSearch) : ControllerBase{
+public class ArticleController(ILogger<ArticleController> logger, IRepositoryService repository, IElasticClient elasticClient, IArticleSearchService articleSearch, IAIRequestService aiRequest) : ControllerBase{
 	
 	/// <summary>
 	/// 上传文章
@@ -583,6 +587,74 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 			));
 		}
 		return Ok(ArticleListResp.Success(articleIdList));
+	}
+
+	/// <summary>
+	/// 获取AI文章
+	/// </summary>
+	/// <returns>AI文章</returns>
+	[HttpGet("get-ai-article", Name = "GetAIArticle")]
+	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+	[Authorize(Roles = $"{nameof(UserRole.User)},{nameof(UserRole.Creator)}{nameof(UserRole.Admin)},{nameof(UserRole.SuperAdmin)}")]
+	public async Task<IActionResult> GetAIArticle()
+	{
+		var userId = User.GetUserId();
+		if(userId == null)
+		{
+			return StatusCode(StatusCodes.Status403Forbidden, ResponseFactory.NewFailedBaseResponse(
+				StatusCodes.Status403Forbidden,
+				ErrorMessages.Controller.Any.InvalidJwtToken
+			));
+		}
+
+		var LatestFinishedWordGroup = await repository.FinishedWordRepository.GetLatestFinishedWordIdAsync(userId.Value);
+		if(LatestFinishedWordGroup == null)
+		{
+			return NotFound(AIArticleDetailResp.Fail(
+				StatusCodes.Status404NotFound,
+				ErrorMessages.Controller.Word.WordsNotFound
+			));
+		}
+
+		var aiArticle = await repository.AIArticleRepository.GetByUserIdAsync(userId.Value);
+		if(aiArticle != null&&aiArticle.SessionId==LatestFinishedWordGroup.Key)
+		{	
+			return Ok(AIArticleDetailResp.Success(aiArticle));
+		}
+
+		var LatestFinishedWordRecord = LatestFinishedWordGroup.ToList();
+		var LatestFinishedWords = await repository.WordRepository.GetByGuidsAsync([.. LatestFinishedWordRecord.Select(x => x.WordId)]);
+		if(LatestFinishedWords == null)
+		{
+			return NotFound(AIArticleDetailResp.Fail(
+				StatusCodes.Status404NotFound,
+				ErrorMessages.Controller.Word.WordsNotFound
+			));
+		}
+		ChatCompletion? completion = await aiRequest.GetAIArticleAsync([.. LatestFinishedWords.Select(x => x.WordText)]);
+		if(completion != null)
+		{
+			using JsonDocument doc = JsonDocument.Parse(completion.Content[0].Text);
+            JsonElement root = doc.RootElement;
+            string title = root.GetProperty("title").GetString()??string.Empty;
+            string content = root.GetProperty("content").GetString()??string.Empty;
+			aiArticle = new AIArticleEntity
+			{
+				UserId = userId.Value,
+				SessionId = LatestFinishedWordGroup.Key,
+				Title = title,
+				Content = content,
+				CreatedAt = DateTime.UtcNow
+			};
+			repository.AIArticleRepository.Create(aiArticle);
+			return Ok(AIArticleDetailResp.Success(aiArticle));
+		}
+
+		logger.LogWarning("User {} failed to get AI article", userId.Value);
+		return StatusCode(StatusCodes.Status500InternalServerError,AIArticleDetailResp.Fail(
+			StatusCodes.Status500InternalServerError,
+			ErrorMessages.Controller.Article.AIArticleFailed
+		));
 	}
 }
 
