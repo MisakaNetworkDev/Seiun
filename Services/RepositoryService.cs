@@ -45,4 +45,7 @@ public class RepositoryService(SeiunDbContext seiunDbContext, IMinioClient minio
 
     private readonly Lazy<IAIArticleRepository> _aiArticleRepository = new(() => new AIArticleRepository(seiunDbContext, minioClient));
     public IAIArticleRepository AIArticleRepository => _aiArticleRepository.Value;
+
+    private readonly Lazy<IUserCheckInRepository> _userCheckInRepository = new(() => new UserCheckInRepository(seiunDbContext, minioClient));
+    public IUserCheckInRepository UserCheckInRepository => _userCheckInRepository.Value;
 }   
