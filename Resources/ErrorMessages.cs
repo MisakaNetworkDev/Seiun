@@ -83,6 +83,7 @@ public static class ErrorMessages
             public const string ArticleLiked = "error.controller.article.like.article_is_liked";
             public const string ArticleNotLiked = "error.controller.article.cancellike.article_not_liked";
             public const string ArticleImgsUploadFailed = "error.controller.article.uploadarticleimage.upload_failed";
+            public const string AIArticleFailed = "error.controller.article.getaiarticle.get_aiarticle_failed";
         }
 
         public static class PublicAnnouncement

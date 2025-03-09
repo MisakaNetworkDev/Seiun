@@ -16,8 +16,7 @@ public interface IRepositoryService
     IUserTagRepository UserTagRepository { get; }
     ISessionRepository SessionRepository { get; }
     IErrorWordRepository ErrorWordRepository { get; }
-
     IFinishedWordRepository FinishedWordRepository { get; }
-
+    IAIArticleRepository AIArticleRepository { get; }
     IUserCheckInRepository UserCheckInRepository { get; }
 }

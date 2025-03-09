@@ -51,6 +51,9 @@ var minioClient = new MinioClient().WithEndpoint(minioConfig["Endpoint"])
     .WithCredentials(minioConfig["AccessKey"], minioConfig["SecretKey"]).Build();
 builder.Services.AddSingleton(minioClient);
 
+// Inject AI request service
+builder.Services.AddSingleton<IAIRequestService, AIRequestService>();
+
 // Inject repository service
 builder.Services.AddScoped<IRepositoryService, RepositoryService>();
 // Inject search service

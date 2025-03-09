@@ -100,3 +100,34 @@ public sealed class ArticleDetailResp(int code, string message, ArticleDetail? a
 }
 
 # endregion
+
+# region GetAIArticle
+
+public class AIArticleDetail
+{	
+
+	public required string Title { get; set; }
+	public required string Content { get; set; }
+}
+
+public sealed class AIArticleDetailResp(int code, string message, AIArticleDetail? aiArticleDetail)
+	: BaseRespWithData<AIArticleDetail>(code, message, aiArticleDetail)
+{
+	public static AIArticleDetailResp Success(AIArticleEntity aiArticleEntity)
+	{
+		return new AIArticleDetailResp(StatusCodes.Status200OK, SuccessMessages.Controller.Article.GetArticleDetailSuccess,
+			new AIArticleDetail
+			{
+				Title = aiArticleEntity.Title,
+				Content = aiArticleEntity.Content
+			}
+		);
+	}
+
+	public static AIArticleDetailResp Fail(int code, string message)
+	{
+		return new AIArticleDetailResp(code, message, null);
+	}
+}
+
+# endregion
