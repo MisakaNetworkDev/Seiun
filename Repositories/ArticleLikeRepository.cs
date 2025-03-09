@@ -4,7 +4,7 @@ using Seiun.Entities;
 
 namespace Seiun.Repositories;
 
-public class UserArticleStatusRepository(SeiunDbContext dbContext, IMinioClient minioClient)
+public class ArticleLikeRepository(SeiunDbContext dbContext, IMinioClient minioClient)
 	: BaseRepository<ArticleLikeEntity>(dbContext, minioClient), IArticleLikeRepository
 {
 	public async Task<List<Guid>?> GetArticleListByLikedRecordAsync(Guid userId)
