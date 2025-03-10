@@ -106,8 +106,8 @@ public sealed class ArticleDetailResp(int code, string message, ArticleDetail? a
 public class AIArticleDetail
 {	
 
-	public required string Title { get; set; }
-	public required string Content { get; set; }
+	public required string AIArticle { get; set; }
+	public required string AICoverURL{ get; set; }
 }
 
 public sealed class AIArticleDetailResp(int code, string message, AIArticleDetail? aiArticleDetail)
@@ -118,8 +118,8 @@ public sealed class AIArticleDetailResp(int code, string message, AIArticleDetai
 		return new AIArticleDetailResp(StatusCodes.Status200OK, SuccessMessages.Controller.Article.GetArticleDetailSuccess,
 			new AIArticleDetail
 			{
-				Title = aiArticleEntity.Title,
-				Content = aiArticleEntity.Content
+				AIArticle = aiArticleEntity.Article,
+				AICoverURL = aiArticleEntity.CoverURL
 			}
 		);
 	}

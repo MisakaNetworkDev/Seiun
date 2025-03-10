@@ -120,6 +120,7 @@ public static class ErrorMessages
         {
             public const string FinishedWordCreatFailed = "error.controller.word.finishedword.create_failed";
             public const string ErrorWordCreatFailed = "error.controller.word.errorword.create_failed";
+            public const string WordNotFound = "error.controller.word.not_found";
         }
 
         public static class Tag
