@@ -139,6 +139,7 @@ public static class ErrorMessages
             public const string NotFoundSession = "error.controller.session.not_found_session";
             public const string GetNextWordFailed = "error.controller.session.get_next_word_failed";
             public const string NotFindNextWord = "error.controller.session.not_find_next_word";
+            public const string DeleteFailed = "error.controller.session.delete_failed";
         }
     }
 }

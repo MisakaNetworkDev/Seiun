@@ -76,6 +76,7 @@ public static class SuccessMessages
         public static class Session
         {
             public const string SessionOverSuccess = "controller.session.session_over_success";
+            public const string WordSessionOver = "controller.session.word_session_over";
         }
     }
 }

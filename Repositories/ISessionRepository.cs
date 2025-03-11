@@ -2,7 +2,7 @@ using Seiun.Entities;
 
 namespace Seiun.Repositories;
 
-public interface ISessionRepository : IBaseRepository<SessionEntity>
+public interface ISessionRepository : IBaseRepository<WordSessionEntity>
 {
-	Task<SessionEntity?> GetSessionByUserIdAsync(Guid userId);
+	Task<WordSessionEntity?> GetSessionByUserIdAsync(Guid userId);
 }

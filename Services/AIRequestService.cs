@@ -56,8 +56,10 @@ public class AIRequestService : IAIRequestService
 	{
 		var apiKey = _config["CA:ApiKey"];
     	var endpoint = _config["CA:Endpoint"];
-		var client = new RestClient($"{endpoint}");
 
+		aiArticle = aiArticle.Length>900?aiArticle[..900] : aiArticle;
+
+		var client = new RestClient($"{endpoint}");
         var request = new RestRequest
         {
             Method = Method.Post
@@ -67,7 +69,7 @@ public class AIRequestService : IAIRequestService
 
 		var body = new
 		{
-			prompt = $"{aiArticle}",
+			prompt = $"根据以下英文文章生成图片，要求阳光，二次元风格。文章：{aiArticle}",
 			n = 1,
 			model = "dall-e-2",
 			size = "512x512"
