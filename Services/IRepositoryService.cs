@@ -17,6 +17,12 @@ public interface IRepositoryService
     ISessionRepository SessionRepository { get; }
     IErrorWordRepository ErrorWordRepository { get; }
     IFinishedWordRepository FinishedWordRepository { get; }
+<<<<<<< HEAD
+
+    IUserCheckInRepository UserCheckInRepository { get; }
+    IAIArticleRepository AIArticleRepository { get; }
+=======
     IAIArticleRepository AIArticleRepository { get; }
     IUserCheckInRepository UserCheckInRepository { get; }
+>>>>>>> b146b558ac009a67e541bad7b44028a2b3c9d153
 }

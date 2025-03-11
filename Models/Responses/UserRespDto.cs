@@ -93,4 +93,38 @@ public sealed class UserCheckInDayResp(int code, string message, UserCheckInDay?
         return new UserCheckInDayResp(code, message, null);
     }
 }
+<<<<<<< HEAD
+#endregion
+
+#region UserListResponse
+
+public class UserList
+{
+    public required Guid UserId { get; set; }
+    public required UserRole Role { get; set; }
+    public required string UserName { get; set; }
+    public string? Email { get; set; }
+    public required string PhoneNumber { get; set; }
+    public required Gender Gender { get; set; }
+    public required string NickName { get; set; }
+}
+
+public sealed class UserListResp(int code, string message, List<UserList>? userList)
+    : BaseRespWithData<List<UserList>>(code, message, userList)
+{
+    public static UserListResp Success(string message, List<UserList> userList) 
+    {
+        return new UserListResp(200, message, userList);
+    }
+
+    public static UserListResp Fail(int code, string message)
+    {
+        return new UserListResp(code, message, null);
+    }
+}
+
+
+
+=======
+>>>>>>> b146b558ac009a67e541bad7b44028a2b3c9d153
 #endregion
