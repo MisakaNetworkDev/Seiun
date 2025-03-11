@@ -64,6 +64,7 @@ public static class ErrorMessages
             public const string PhoneNumberDuplicated = "error.controller.user.register.phone_number_already_exists";
             public const string RegisterFailed = "error.controller.user.register.register_failed";
             public const string UserCheckInFailed = "error.controller.user.checkin.checkin_failed";
+            public const string UserListFailed = "error.controller.user.list.get_userlist_failed";
         }
         public static class Article
         {
@@ -120,6 +121,7 @@ public static class ErrorMessages
         {
             public const string FinishedWordCreatFailed = "error.controller.word.finishedword.create_failed";
             public const string ErrorWordCreatFailed = "error.controller.word.errorword.create_failed";
+            public const string WordNotFound = "error.controller.word.not_found";
         }
 
         public static class Tag
