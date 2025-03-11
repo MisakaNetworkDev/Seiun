@@ -93,6 +93,7 @@ public sealed class UserCheckInDayResp(int code, string message, UserCheckInDay?
         return new UserCheckInDayResp(code, message, null);
     }
 }
+<<<<<<< HEAD
 #endregion
 
 #region UserListResponse
@@ -124,4 +125,6 @@ public sealed class UserListResp(int code, string message, List<UserList>? userL
 
 
 
+=======
+>>>>>>> b146b558ac009a67e541bad7b44028a2b3c9d153
 #endregion

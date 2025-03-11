@@ -64,7 +64,10 @@ public static class ErrorMessages
             public const string PhoneNumberDuplicated = "error.controller.user.register.phone_number_already_exists";
             public const string RegisterFailed = "error.controller.user.register.register_failed";
             public const string UserCheckInFailed = "error.controller.user.checkin.checkin_failed";
+<<<<<<< HEAD
             public const string UserListFailed = "error.controller.user.list.get_userlist_failed";
+=======
+>>>>>>> b146b558ac009a67e541bad7b44028a2b3c9d153
         }
         public static class Article
         {

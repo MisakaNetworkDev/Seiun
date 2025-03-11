@@ -42,10 +42,17 @@ public class RepositoryService(SeiunDbContext seiunDbContext, IMinioClient minio
 
     private readonly Lazy<IFinishedWordRepository> _finishedWordRepository = new(() => new FinishedWordRepository(seiunDbContext, minioClient));
     public IFinishedWordRepository FinishedWordRepository => _finishedWordRepository.Value;
+<<<<<<< HEAD
 
     private readonly Lazy<IAIArticleRepository> _aiArticleRepository = new(() => new AIArticleRepository(seiunDbContext, minioClient));
     public IAIArticleRepository AIArticleRepository => _aiArticleRepository.Value;
 
+=======
+    
+    private readonly Lazy<IAIArticleRepository> _aiArticleRepository = new(() => new AIArticleRepository(seiunDbContext, minioClient));
+    public IAIArticleRepository AIArticleRepository => _aiArticleRepository.Value;
+    
+>>>>>>> b146b558ac009a67e541bad7b44028a2b3c9d153
     private readonly Lazy<IUserCheckInRepository> _userCheckInRepository = new(() => new UserCheckInRepository(seiunDbContext, minioClient));
     public IUserCheckInRepository UserCheckInRepository => _userCheckInRepository.Value;
 }   
