@@ -68,7 +68,7 @@ public class CurrentStudySessionService : ICurrentStudySessionService
 	}
 
 	// 定时清理Session
-	public async Task ClearSessionAsync(ISessionRepository sessionRepository, ILogger logger)
+	public async Task ClearSessionAsync(IWordSessionRepository sessionRepository, ILogger logger)
 	{
 		var endTime = DateTime.Now;
 		var clearingSessions = new List<Guid>();
