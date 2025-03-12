@@ -10,6 +10,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Seiun.Utils;
 using Nest;
+using OpenAI;
+using System.ClientModel;
+using OpenAI.Chat;
+using System.Text.Json;
 
 namespace Seiun.Controllers;
 /// <summary>

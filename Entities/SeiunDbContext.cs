@@ -20,7 +20,6 @@ public class SeiunDbContext(DbContextOptions<SeiunDbContext> options) : DbContex
     public required DbSet<FinishedWordRecordEntity> FinishedWords { get; set; }
     public required DbSet<AIArticleEntity> AIArticles { get; set; }
     public required DbSet<UserCheckInEntity> UserCheckIns { get; set; }
-
     // protected override void OnModelCreating(ModelBuilder modelBuilder)
     // {
     //     base.OnModelCreating(modelBuilder);

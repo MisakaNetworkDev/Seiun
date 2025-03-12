@@ -105,7 +105,6 @@ public sealed class ArticleDetailResp(int code, string message, ArticleDetail? a
 
 public class AIArticleDetail
 {	
-
 	public required string AIArticle { get; set; }
 	public required string AICoverURL{ get; set; }
 }
