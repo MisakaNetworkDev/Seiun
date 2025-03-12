@@ -616,10 +616,10 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 			));
 		}
 
-		var aiArticle = await repository.AIArticleRepository.GetByUserIdAsync(userId.Value);
-		if(aiArticle != null&&aiArticle.SessionId==LatestFinishedWordGroup.Key)
+		var aIArticleEntity = await repository.AIArticleRepository.GetByUserIdAsync(userId.Value);
+		if(aIArticleEntity != null&&aIArticleEntity.SessionId==LatestFinishedWordGroup.Key)
 		{	
-			return Ok(AIArticleDetailResp.Success(aiArticle));
+			return Ok(AIArticleDetailResp.Success(aIArticleEntity));
 		}
 
 		var LatestFinishedWordRecord = LatestFinishedWordGroup.ToList();
@@ -631,23 +631,27 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 				ErrorMessages.Controller.Word.WordNotFound
 			));
 		}
-		ChatCompletion? completion = await aiRequest.GetAIArticleAsync([.. LatestFinishedWords.Select(x => x.WordText)]);
-		if(completion != null)
+
+		string? aiArticle = await aiRequest.GetAIArticleAsync([.. LatestFinishedWords.Select(x => x.WordText)]);
+		if(aiArticle != null)
 		{
-			using JsonDocument doc = JsonDocument.Parse(completion.Content[0].Text);
-            JsonElement root = doc.RootElement;
-            string title = root.GetProperty("title").GetString()??string.Empty;
-            string content = root.GetProperty("content").GetString()??string.Empty;
-			aiArticle = new AIArticleEntity
+			string? aiCover = await aiRequest.GetAICoverAsync(aiArticle);
+			if(aiCover != null && aiCover != string.Empty)
 			{
-				UserId = userId.Value,
-				SessionId = LatestFinishedWordGroup.Key,
-				Title = title,
-				Content = content,
-				CreatedAt = DateTime.UtcNow
-			};
-			repository.AIArticleRepository.Create(aiArticle);
-			return Ok(AIArticleDetailResp.Success(aiArticle));
+				aIArticleEntity = new AIArticleEntity
+				{
+					UserId = userId.Value,
+					SessionId = LatestFinishedWordGroup.Key,
+					Article = aiArticle,
+					CoverURL = aiCover,
+					CreatedAt = DateTime.UtcNow
+				};
+				repository.AIArticleRepository.Create(aIArticleEntity);
+				if(await repository.AIArticleRepository.SaveAsync())
+				{
+					return Ok(AIArticleDetailResp.Success(aIArticleEntity));
+				}
+			}
 		}
 
 		logger.LogWarning("User {} failed to get AI article", userId.Value);

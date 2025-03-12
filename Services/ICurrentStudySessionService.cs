@@ -6,10 +6,10 @@ namespace Seiun.Services;
 
 public interface ICurrentStudySessionService
 {
-	public bool AddSession(Guid SessionId, Queue<WordEntity> Words, ILogger<SessionController> logger);
-	public WordEntity? GetNextWord(Guid SessionId, ILogger<SessionController> logger);
-	public void DeleteCorrectWord(Guid SessionId, ILogger<SessionController> logger);
-	public void InsertErrorWord(Guid SessionId, ILogger<SessionController> logger);
-	public void RemoveSession(Guid SessionId, ILogger<SessionController> logger);
+	public bool AddSession(Guid SessionId, Queue<WordEntity> Words, ILogger<WordSessionController> logger);
+	public WordEntity? GetNextWord(Guid SessionId, ILogger<WordSessionController> logger);
+	public void DeleteCorrectWord(Guid SessionId, ILogger<WordSessionController> logger);
+	public void InsertErrorWord(Guid SessionId, ILogger<WordSessionController> logger);
+	public void RemoveSession(Guid SessionId, ILogger<WordSessionController> logger);
 	public Task ClearSessionAsync(ISessionRepository sessionRepository, ILogger logger);
 }
