@@ -7,7 +7,6 @@ public class SeiunDbContext(DbContextOptions<SeiunDbContext> options) : DbContex
     public required DbSet<UserEntity> Users { get; init; }
     public required DbSet<ArticleEntity> Articles { get; init; }
     public required DbSet<ArticleLikeEntity> ArticleLikes { get; init; }
-    public required DbSet<ArticleLikeEntity> ArticleLikes { get; init; }
     public required DbSet<PublicAnnouncementEntity> PublicAnnouncements {get; init;}
     public required DbSet<CommentEntity> Comments { get; set; }
     public required DbSet<CommentLikeEntity> CommentLike { get; set; }
