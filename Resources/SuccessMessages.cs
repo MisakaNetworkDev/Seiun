@@ -15,6 +15,7 @@ public static class SuccessMessages
             public const string NoCheckInToday = "controller.user.checkin.no_checkin_today";
             public const string NoCheckInHistory = "controller.user.checkin.no_checkin_history";
             public const string GetConsecutiveCheckInDays = "controller.user.checkin.get_consecutive_checkin_days";
+            public const string GetListSuccess = "controller.user.get.get_list_success";
         }
         public static class Article
         {
