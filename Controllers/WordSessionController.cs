@@ -25,7 +25,7 @@ public class WordSessionController(ILogger<WordSessionController> logger, IRepos
 	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status403Forbidden)]
 	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status404NotFound)]
 	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status500InternalServerError)]
-	public async Task<IActionResult> StartStudy()
+	public async Task<IActionResult> Init()
 	{
 		var userId = User.GetUserId();
 		if (userId == null)
