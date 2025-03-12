@@ -5,9 +5,9 @@ using Seiun.Entities;
 namespace Seiun.Repositories;
 
 public class SessionRepository(SeiunDbContext dbContext, IMinioClient minioClient)
-	: BaseRepository<SessionEntity>(dbContext, minioClient), ISessionRepository
+	: BaseRepository<WordSessionEntity>(dbContext, minioClient), ISessionRepository
 {
-	public Task<SessionEntity?> GetSessionByUserIdAsync(Guid userId)
+	public Task<WordSessionEntity?> GetSessionByUserIdAsync(Guid userId)
 	{
 		return DbContext.Sessions.Where(s => s.UserId == userId).FirstOrDefaultAsync();
 	}

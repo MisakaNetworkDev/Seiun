@@ -9,7 +9,7 @@ public class CurrentStudySessionService : ICurrentStudySessionService
 	private readonly Dictionary<Guid,Queue<WordEntity>> _CurrentStudySessions = [];
 
 	// 添加Session
-    public bool AddSession(Guid SessionId, Queue<WordEntity> Words, ILogger<SessionController> logger)
+    public bool AddSession(Guid SessionId, Queue<WordEntity> Words, ILogger<WordSessionController> logger)
 	{
 		if(_CurrentStudySessions.ContainsKey(SessionId))
 		{
@@ -21,7 +21,7 @@ public class CurrentStudySessionService : ICurrentStudySessionService
 	}
 
     // 获取下一个单词
-	public WordEntity? GetNextWord(Guid SessionId, ILogger<SessionController> logger)
+	public WordEntity? GetNextWord(Guid SessionId, ILogger<WordSessionController> logger)
 	{
 		if(_CurrentStudySessions.ContainsKey(SessionId)==false)
 		{
@@ -32,7 +32,7 @@ public class CurrentStudySessionService : ICurrentStudySessionService
 	}
 
 	// 删除正确单词
-	public void DeleteCorrectWord(Guid SessionId, ILogger<SessionController> logger)
+	public void DeleteCorrectWord(Guid SessionId, ILogger<WordSessionController> logger)
 	{
 		if(_CurrentStudySessions.ContainsKey(SessionId)==false)
 		{	
@@ -43,7 +43,7 @@ public class CurrentStudySessionService : ICurrentStudySessionService
 	}
 
     // 插入错误单词到队尾
-	public void InsertErrorWord(Guid SessionId, ILogger<SessionController> logger)
+	public void InsertErrorWord(Guid SessionId, ILogger<WordSessionController> logger)
 	{
 		if(_CurrentStudySessions.ContainsKey(SessionId)==false)
 		{	
@@ -55,7 +55,7 @@ public class CurrentStudySessionService : ICurrentStudySessionService
 	}
 
     // 会话结束，移除Session
-	public void RemoveSession(Guid SessionId, ILogger<SessionController> logger)
+	public void RemoveSession(Guid SessionId, ILogger<WordSessionController> logger)
 	{
 		if(_CurrentStudySessions.ContainsKey(SessionId)&&_CurrentStudySessions[SessionId].Count==0)
 		{

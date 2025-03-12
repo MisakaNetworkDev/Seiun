@@ -122,6 +122,4 @@ public sealed class UserListResp(int code, string message, List<UserList>? userL
     }
 }
 
-
-
 #endregion

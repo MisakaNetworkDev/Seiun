@@ -25,6 +25,7 @@ public class ResourceController(ILogger<UserController> logger, IRepositoryServi
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAvatar(string fileName, [FromQuery] int size = 256)
     {
+        // TODO：用户选择获取的图片你大小
         if (string.IsNullOrWhiteSpace(fileName) || size <= 0)
         {
             return BadRequest();
@@ -106,6 +107,7 @@ public class ResourceController(ILogger<UserController> logger, IRepositoryServi
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
+        // TODO: 调整图片大小
         var articleImgExtension = Path.GetExtension(fileName);
         string articleImgType = articleImgExtension switch
         {

@@ -20,4 +20,5 @@ public interface IRepositoryService
 
     IUserCheckInRepository UserCheckInRepository { get; }
     IAIArticleRepository AIArticleRepository { get; }
+    IUserCheckInRepository UserCheckInRepository { get; }
 }
