@@ -57,6 +57,29 @@ public sealed class ArticleListResp(int code, string message, ArticleList? artic
 	}
 }
 
+public class ArticleCover
+{
+	public required string ArticleCoverName	{ get; set; }
+}
+
+public sealed class ArticleCoverResp(int code, string message, ArticleCover? articleCover)
+	: BaseRespWithData<ArticleCover>(code, message, articleCover)
+{
+	public static ArticleCoverResp Success(string articleCoverName)
+	{
+		return new ArticleCoverResp(StatusCodes.Status200OK, SuccessMessages.Controller.Article.GetArticleCoverNameSuccess,
+			new ArticleCover
+			{
+				ArticleCoverName = articleCoverName
+			});
+	}
+
+	public static ArticleCoverResp Fail(int code, string message)
+	{
+		return new ArticleCoverResp(code, message, null);
+	}
+}
+
 # endregion
 
 # region ArticleDetailResponse

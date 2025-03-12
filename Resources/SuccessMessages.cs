@@ -26,6 +26,7 @@ public static class SuccessMessages
             public const string GetArticleDetailSuccess = "controller.article.GetArticleDetail.get_articledetail_success";
             public const string LikeSuccess = "controller.article.like.like_success";
             public const string GetArticleImgNameListSuccess = "controller.article.articleimgs.get_articleimgnamelist_success";
+            public const string GetArticleCoverNameSuccess = "controller.article.articlecover.get_articlecovername_success";
         }
     
         public static class PublicAnnouncement
@@ -73,7 +74,7 @@ public static class SuccessMessages
             public const string ErrorWordRecordCreatSuccess = "controller.word.errorword.record.record_success";
         }
 
-        public static class Session
+        public static class WordSession
         {
             public const string WordSessionOver = "controller.session.word_session_over";
         }

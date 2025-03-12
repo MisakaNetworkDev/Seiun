@@ -67,7 +67,7 @@ public static class ErrorMessages
         }
         public static class Article
         {
-            public const string UserNotAuthorized = "error.controller.article.user_not_authorized";
+            public const string PermissonDeniedError = "error.controller.article.permission_denied";
             public const string CreateFailed = "error.controller.article.create.create_failed";
             public const string ArticleNotFound = "error.controller.article.not_found";
             public const string DeleteFailed = "error.controller.article.delete.delete_failed";
@@ -84,6 +84,7 @@ public static class ErrorMessages
             public const string ArticleNotLiked = "error.controller.article.cancellike.article_not_liked";
             public const string ArticleImgsUploadFailed = "error.controller.article.uploadarticleimage.upload_failed";
             public const string AIArticleFailed = "error.controller.article.getaiarticle.get_aiarticle_failed";
+            public const string ArticleCoverUploadFailed = "error.controller.article.uploadarticlecover.upload_failed";
         }
 
         public static class PublicAnnouncement
@@ -133,7 +134,7 @@ public static class ErrorMessages
             public const string DeleteFailed = "error.controller.user_tag.delete_failed";
             public const string UserTagNotFound = "error.controller.user_tag.not_found";
         }
-        public static class Session
+        public static class WordSession
         {
             public const string StartFailed = "error.controller.session.start_failed";
             public const string NotFoundSession = "error.controller.session.not_found_session";

@@ -5,22 +5,22 @@ namespace Seiun.Models.Responses;
 
 # region StartStudyResponse
 
-public class SessionDetail
+public class WordSessionDetail
 {
-	public required Guid SessionId { get; set; }
+	public required Guid WordSessionId { get; set; }
 	public required int ReviewingWordCount { get; set; }
 	public required int StudyingWordCount { get; set; }
 }
 
-public sealed class StartStudyResp(int code, string message, SessionDetail? sessionDetail)
-	: BaseRespWithData<SessionDetail>(code, message, sessionDetail)
+public sealed class StartStudyResp(int code, string message, WordSessionDetail? WordsessionDetail)
+	: BaseRespWithData<WordSessionDetail>(code, message, WordsessionDetail)
 {
 	public static StartStudyResp Success(Guid sessionId, int reviewingWordCount, int studyingWordCount)
 	{
 		return new StartStudyResp(StatusCodes.Status200OK, SuccessMessages.Controller.StudySession.GetSessionDetailSuccess,
-			new SessionDetail
+			new WordSessionDetail
 			{
-				SessionId = sessionId,
+				WordSessionId = sessionId,
 				ReviewingWordCount = reviewingWordCount,
 				StudyingWordCount = studyingWordCount
 			});

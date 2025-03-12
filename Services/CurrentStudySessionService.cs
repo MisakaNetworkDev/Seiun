@@ -79,7 +79,7 @@ public class CurrentStudySessionService : ICurrentStudySessionService
 				var userSession = await sessionRepository.GetByIdAsync(Session.Key);
 				if(userSession!=null)
 				{
-					TimeSpan hoursSpan = endTime - userSession.SessionAt;
+					TimeSpan hoursSpan = endTime - userSession.WordSessionAt;
 					if(hoursSpan.TotalHours>20)
 					{
 						clearingSessions.Add(Session.Key);
