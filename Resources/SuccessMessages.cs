@@ -11,6 +11,11 @@ public static class SuccessMessages
             public const string ProfileUpdateSuccess = "controller.user.profile.update_success";
             public const string AvatarUpdateSuccess = "controller.user.profile.avatar_update_success";
             public const string GetProfileSuccess = "controller.user.profile.get_success";
+            public const string CheckInToday = "controller.user.checkin.checkin_today";
+            public const string NoCheckInToday = "controller.user.checkin.no_checkin_today";
+            public const string NoCheckInHistory = "controller.user.checkin.no_checkin_history";
+            public const string GetConsecutiveCheckInDays = "controller.user.checkin.get_consecutive_checkin_days";
+            public const string GetListSuccess = "controller.user.get.get_list_success";
         }
         public static class Article
         {
@@ -21,7 +26,6 @@ public static class SuccessMessages
             public const string GetArticleListSuccess = "controller.article.GetArticleList.get_articlelist_success";
             public const string GetArticleDetailSuccess = "controller.article.GetArticleDetail.get_articledetail_success";
             public const string LikeSuccess = "controller.article.like.like_success";
-            public const string ArticleImgsUploadSuccess = "controller.article.articleimgs.upload_success";
             public const string GetArticleImgNameListSuccess = "controller.article.articleimgs.get_articleimgnamelist_success";
         }
     
@@ -54,8 +58,6 @@ public static class SuccessMessages
         {
             public const string CreateSuccess = "controller.usertag.create.create_success";
             public const string DeleteSuccess = "controller.usertag.delete.delete_success";
-            public const string GetListSuccess = "controller.usertag.get.list_success";
-            public const string DetailSuccess = "controller.usertag.detail.detail_success";
             public const string GetDetailSuccess = "controller.usertag.get.detail_success";
         }
 
@@ -69,6 +71,12 @@ public static class SuccessMessages
         {
             public const string GetReviewingWordSuccess = "controller.word.get.reviewing_word_success";
             public const string FinishedWordCreatSuccess = "controller.word.finishedword.create.create_success";
+            public const string ErrorWordRecordCreatSuccess = "controller.word.errorword.record.record_success";
+        }
+
+        public static class Session
+        {
+            public const string SessionOverSuccess = "controller.session.session_over_success";
         }
     }
 }

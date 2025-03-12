@@ -35,6 +35,7 @@ public class UserEntity : BaseEntity
     public required UserRole Role { get; set; }
     public required bool IsBanned { get; set; }
 
-    public Guid LearningTagId { get; set; }
     public virtual ICollection<UserTagEntity> UserTags { get; set; } = [];
+    public virtual ICollection<UserCheckInEntity> CheckIns { get; set; } = [];
 }
+

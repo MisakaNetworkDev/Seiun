@@ -312,4 +312,87 @@ public class UserController(ILogger<UserController> logger, IRepositoryService r
 
         return Ok(UserProfileResp.Success(user));
     }
+    
+    /// <summary>
+    /// 获取今日用户打卡状态
+    /// </summary>
+    /// <param name="userId">用户ID</param>
+    /// <returns>打卡状态</returns>
+    [HttpGet("checkin/{userId:Guid}", Name = "GetCheckin")]
+    [ProducesResponseType(typeof(BaseResp), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(UserProfileResp), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetCheckin(Guid userId)
+    {
+        var user = await repository.UserRepository.GetByIdAsync(userId);
+        if (user == null)
+        {
+            return NotFound(UserProfileResp.Fail(
+                StatusCodes.Status404NotFound,
+                ErrorMessages.Controller.User.UserNotFound
+            ));
+        }
+
+        if (await repository.UserCheckInRepository.CheckInTodayAsync(userId))
+        {
+            return Ok(ResponseFactory.NewSuccessBaseResponse(SuccessMessages.Controller.User.CheckInToday));
+        }
+
+        return Ok(ResponseFactory.NewSuccessBaseResponse(SuccessMessages.Controller.User.NoCheckInToday));
+    }
+
+    /// <summary>
+    /// 获取用户的连续打卡天数
+    /// </summary>
+    /// <param name="userId">用户ID</param>
+    /// <returns>连续打卡天数</returns>
+    [HttpGet("checkin/consecutive/{userId:Guid}", Name = "GetConsecutiveCheckInDays")]
+    [ProducesResponseType(typeof(UserCheckInDayResp), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(UserProfileResp), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetConsecutiveCheckInDays(Guid userId)
+    {
+        var user = await repository.UserRepository.GetByIdAsync(userId);
+        if (user == null)
+        {
+            return NotFound(UserProfileResp.Fail(
+                StatusCodes.Status404NotFound,
+                ErrorMessages.Controller.User.UserNotFound
+            ));
+        }
+
+        var checkInRecords = await repository.UserCheckInRepository.GetUserCheckInsAsync(userId);
+        var userCheckInDay = new UserCheckInDay
+        {
+            ContinuousDays = 0,
+            TodayCheckInStatus = CheckIn.None,  
+        };
+
+        if (checkInRecords.Count == 0)
+        {
+            return Ok(UserCheckInDayResp.Success(SuccessMessages.Controller.User.NoCheckInHistory, userCheckInDay));
+        }
+
+        if (await repository.UserCheckInRepository.CheckInTodayAsync(userId))
+        {
+            userCheckInDay.TodayCheckInStatus = CheckIn.Checked;
+        }
+
+        DateTime lastCheckInDate = checkInRecords.First().CheckInDate.Date;
+        foreach (var record in checkInRecords.Skip(1))
+        {
+            DateTime currentCheckInDate = record.CheckInDate.Date;
+            if (lastCheckInDate == currentCheckInDate.AddDays(-1))  
+            {
+                userCheckInDay.ContinuousDays++;
+                lastCheckInDate = currentCheckInDate;
+            }
+            else
+            {
+                break;  
+            }
+        }
+
+        return Ok(UserCheckInDayResp.Success(SuccessMessages.Controller.User.GetConsecutiveCheckInDays, userCheckInDay));
+    }
+
+
 }

@@ -612,7 +612,7 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 		{
 			return NotFound(AIArticleDetailResp.Fail(
 				StatusCodes.Status404NotFound,
-				ErrorMessages.Controller.Word.WordsNotFound
+				ErrorMessages.Controller.Word.WordNotFound
 			));
 		}
 
@@ -628,7 +628,7 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 		{
 			return NotFound(AIArticleDetailResp.Fail(
 				StatusCodes.Status404NotFound,
-				ErrorMessages.Controller.Word.WordsNotFound
+				ErrorMessages.Controller.Word.WordNotFound
 			));
 		}
 		ChatCompletion? completion = await aiRequest.GetAIArticleAsync([.. LatestFinishedWords.Select(x => x.WordText)]);

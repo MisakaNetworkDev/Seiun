@@ -17,12 +17,13 @@ public class SeiunDbContext(DbContextOptions<SeiunDbContext> options) : DbContex
     public required DbSet<TagEntity> Tag { get; set; }
     public required DbSet<WordEntity> Words { get; set; }
     public required DbSet<ErrorWordRecordEntity> ErrorWords { get; set; }
-    public required DbSet<FinishedWordRecordEntity> FinishedWords { get; set; }
+      public required DbSet<FinishedWordRecordEntity> FinishedWords { get; set; }
     public required DbSet<AIArticleEntity> AIArticles { get; set; }
 
     public required DbSet<FinishedWordRecordEntity> UserWordRecords { get; set; }
     public required DbSet<SessionEntity> Sessions { get; set; }
 
+    public required DbSet<UserCheckInEntity> UserCheckIns { get; set; }
     // protected override void OnModelCreating(ModelBuilder modelBuilder)
     // {
     //     base.OnModelCreating(modelBuilder);

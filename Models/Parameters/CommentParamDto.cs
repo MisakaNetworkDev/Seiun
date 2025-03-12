@@ -9,6 +9,6 @@ public class CommentCreate
     [MaxLength(500, ErrorMessage = ErrorMessages.ValidationError.OverContentLength)]
     public required string Content { get; set; }
 
-    [Required(ErrorMessage = ErrorMessages.ValidationError.PostIdRequired)]
-    public required Guid PostId { get; set; }
+    [Required(ErrorMessage = ErrorMessages.ValidationError.ArticleIdRequired)]
+    public required Guid ArticleId { get; set; }
 }
