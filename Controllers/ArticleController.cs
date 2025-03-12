@@ -8,6 +8,7 @@ using Seiun.Models.Parameters;
 using SixLabors.ImageSharp;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using SixLabors.ImageSharp.Processing;
 using Seiun.Utils;
 using Nest;
 using OpenAI;
@@ -59,6 +60,7 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 		{
 			Article = articleCreate.Article,
 			ImageFileNames = articleCreate.ImageNames,
+			CoverFileName = articleCreate.CoverFileName,
 			CreatorId = userId.Value,
 			CreateTime = DateTime.Now,
 			IsPinned = false
@@ -93,6 +95,101 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 	}
 
 	/// <summary>
+	/// 上传文章封面
+	/// </summary>
+	/// <param name="articleCoverFile"></param>
+	/// <returns></returns>
+	[HttpPost("upload-cover", Name = "UploadArticleCover")]
+	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+	[Authorize(Roles = $"{nameof(UserRole.Creator)},{nameof(UserRole.Admin)},{nameof(UserRole.SuperAdmin)}")]
+	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status403Forbidden)]
+	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status400BadRequest)]
+	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status500InternalServerError)]
+	public async Task<IActionResult> UploadArticleCover(IFormFile? articleCoverFile)
+	{
+		var usserId = User.GetUserId();
+		if(usserId == null)
+		{
+			return StatusCode(StatusCodes.Status403Forbidden, ResponseFactory.NewFailedBaseResponse(
+				StatusCodes.Status403Forbidden,
+				ErrorMessages.Controller.Any.InvalidJwtToken
+			));
+		}
+
+		if(articleCoverFile == null)
+		{
+			return BadRequest(ResponseFactory.NewFailedBaseResponse(
+                StatusCodes.Status400BadRequest,
+                ErrorMessages.Controller.Any.FileNotUploaded
+            ));
+		}
+
+		if(articleCoverFile.Length > Constants.Article.MaxArticleCoverSize)
+		{
+			return BadRequest(ResponseFactory.NewFailedBaseResponse(
+				StatusCodes.Status400BadRequest,
+				ErrorMessages.Controller.Any.FileTooLarge
+			));
+		}
+
+		var fileExtension = Path.GetExtension(articleCoverFile.FileName).ToLower();
+		if(!Constants.Article.AllowedArticleImageExtensions.Contains(fileExtension))
+		{
+			return BadRequest(ResponseFactory.NewFailedBaseResponse(
+				StatusCodes.Status400BadRequest,
+				ErrorMessages.Controller.Any.FileFormatNotSupported
+			));
+		}
+
+		await using var articleCoverStream = articleCoverFile.OpenReadStream();
+		Image image;
+		try
+		{
+			image = await Image.LoadAsync(articleCoverStream);
+		}
+		catch
+		{
+			return BadRequest(ResponseFactory.NewFailedBaseResponse(
+				StatusCodes.Status400BadRequest,
+				ErrorMessages.Controller.Any.FileFormatNotSupported
+			));
+		}
+
+		if (image.Width > Constants.Article.ArticleImageMaxWidth || image.Height > Constants.Article.ArticleImageMaxHeight)
+		{
+			return BadRequest(ResponseFactory.NewFailedBaseResponse(
+				StatusCodes.Status400BadRequest,
+				ErrorMessages.Controller.Any.ImageSizeTooLarge
+			));
+		}
+		
+		var articleCoverName = string.Empty;
+		try
+		{
+			await using var processedImageStream = new MemoryStream();
+			image.Mutate(ipc => ipc.Resize(new ResizeOptions
+            {
+                Size = new Size(Constants.Article.ArticleImgStorageWidth, 0),
+                Mode = ResizeMode.Max
+            }));
+			await image.SaveAsWebpAsync(processedImageStream);
+			processedImageStream.Seek(0, SeekOrigin.Begin);
+			articleCoverName = await repository.ArticleRepository.UploadArticleImgAsync(processedImageStream, Constants.BucketNames.ArticleCover);
+		}
+		catch (Exception e)
+		{
+			logger.LogError(e, "User {} fail to upload article Cover", usserId);
+			return StatusCode(StatusCodes.Status500InternalServerError, ResponseFactory.NewFailedBaseResponse(
+				StatusCodes.Status500InternalServerError,
+				ErrorMessages.Controller.Article.ArticleCoverUploadFailed
+			));
+		}
+		
+		return Ok(ArticleCoverResp.Success(articleCoverName));
+	}
+
+	/// <summary>
 	/// 上传文章图片
 	/// </summary>
 	/// <param name="articleImgFiles">文章图片文件</param>
@@ -104,7 +201,7 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status400BadRequest)]
 	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status403Forbidden)]
 	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status500InternalServerError)]
-	public async Task<IActionResult> UploadArticleImg([FromForm] List<IFormFile>? articleImgFiles)
+	public async Task<IActionResult> UploadArticleImg(List<IFormFile>? articleImgFiles)
 	{
 		var userId = User.GetUserId();
 		if(userId == null)
@@ -169,14 +266,14 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 			try
 			{
 				await using var processedImageStream = new MemoryStream();
-				await articleimgFile.CopyToAsync(processedImageStream);
+				await image.SaveAsWebpAsync(processedImageStream);
 				processedImageStream.Seek(0, SeekOrigin.Begin);
-			    var articleImgName = await repository.ArticleRepository.UploadArticleImgAsync(processedImageStream, fileExtension);
+			    var articleImgName = await repository.ArticleRepository.UploadArticleImgAsync(processedImageStream, Constants.BucketNames.ArticleImages);
 			    articleImgNames.Add(articleImgName);
 			}
 			catch (Exception e)
 			{
-				logger.LogError(e, "Fail to upload article image");
+				logger.LogError(e, "User {} fail to upload article image", userId);
 				return StatusCode(StatusCodes.Status500InternalServerError, ResponseFactory.NewFailedBaseResponse(
 					StatusCodes.Status500InternalServerError,
 					ErrorMessages.Controller.Article.ArticleImgsUploadFailed
@@ -227,7 +324,7 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 			{
 				return StatusCode(StatusCodes.Status403Forbidden, ResponseFactory.NewFailedBaseResponse(
 					StatusCodes.Status403Forbidden,
-					ErrorMessages.Controller.Article.UserNotAuthorized
+					ErrorMessages.Controller.Article.PermissonDeniedError
 				));
 			}
 		}
@@ -236,7 +333,7 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 		repository.ArticleRepository.Delete(article);
 		if(await repository.ArticleRepository.SaveAsync()&&deleteResponse.IsValid)
 		{	
-			if(article.ImageFileNames != null&&await repository.ArticleRepository.DeleteAticleImgAsync(article.ImageFileNames))
+			if(article.ImageFileNames != null&&await repository.ArticleRepository.DeleteAticleImgAsync(article.ImageFileNames, Constants.BucketNames.ArticleImages))
 			{
 				return Ok(ResponseFactory.NewSuccessBaseResponse(SuccessMessages.Controller.Article.DeleteSuccess));
 			}
@@ -278,7 +375,7 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 		{
 			return StatusCode(StatusCodes.Status403Forbidden, ResponseFactory.NewFailedBaseResponse(
 				StatusCodes.Status403Forbidden,
-				ErrorMessages.Controller.Article.UserNotAuthorized
+				ErrorMessages.Controller.Article.PermissonDeniedError
 			));
 		}
 		
@@ -333,7 +430,7 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 		{
 			return StatusCode(StatusCodes.Status403Forbidden, ResponseFactory.NewFailedBaseResponse(
 				StatusCodes.Status403Forbidden,
-				ErrorMessages.Controller.Article.UserNotAuthorized
+				ErrorMessages.Controller.Article.PermissonDeniedError
 			));
 		}
 
@@ -596,6 +693,10 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 	[HttpGet("get-ai-article", Name = "GetAIArticle")]
 	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 	[Authorize(Roles = $"{nameof(UserRole.User)},{nameof(UserRole.Creator)}{nameof(UserRole.Admin)},{nameof(UserRole.SuperAdmin)}")]
+	[ProducesResponseType(typeof(AIArticleDetailResp), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(AIArticleDetailResp), StatusCodes.Status403Forbidden)]
+	[ProducesResponseType(typeof(AIArticleDetailResp), StatusCodes.Status404NotFound)]
+	[ProducesResponseType(typeof(AIArticleDetailResp), StatusCodes.Status500InternalServerError)]
 	public async Task<IActionResult> GetAIArticle()
 	{
 		var userId = User.GetUserId();

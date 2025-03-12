@@ -11,7 +11,6 @@ public class SeiunDbContext(DbContextOptions<SeiunDbContext> options) : DbContex
     public required DbSet<CommentEntity> Comments { get; set; }
     public required DbSet<CommentLikeEntity> CommentLike { get; set; }
     public required DbSet<ReplyEntity> Replies { get; set; }
-    public required DbSet<FinishedWordRecordEntity> UserWordRecords { get; set; }
     public required DbSet<WordSessionEntity> Sessions { get; set; }
     public required DbSet<UserTagEntity> UserTag { get; set; }
     public required DbSet<TagEntity> Tag { get; set; }

@@ -25,7 +25,7 @@ public class WordSessionController(ILogger<WordSessionController> logger, IRepos
 	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status403Forbidden)]
 	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status404NotFound)]
 	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status500InternalServerError)]
-	public async Task<IActionResult> StartStudy()
+	public async Task<IActionResult> Init()
 	{
 		var userId = User.GetUserId();
 		if (userId == null)
@@ -48,7 +48,7 @@ public class WordSessionController(ILogger<WordSessionController> logger, IRepos
 		var session = new WordSessionEntity
 		{
             UserId = userId.Value,
-			SessionAt = DateTime.Now,
+			WordSessionAt = DateTime.Now,
 		};
 		var wordQUeue = new Queue<WordEntity>();
 
@@ -88,7 +88,7 @@ public class WordSessionController(ILogger<WordSessionController> logger, IRepos
 		logger.LogWarning("Start study session failed");
 		return StatusCode(StatusCodes.Status500InternalServerError, StartStudyResp.Fail(
 			StatusCodes.Status500InternalServerError,
-			ErrorMessages.Controller.Session.StartFailed
+			ErrorMessages.Controller.WordSession.StartFailed
 		));
 	}
 
@@ -128,7 +128,7 @@ public class WordSessionController(ILogger<WordSessionController> logger, IRepos
 		{
 			return NotFound(GetNextWordResp.Fail(
 				StatusCodes.Status404NotFound,
-				ErrorMessages.Controller.Session.NotFoundSession
+				ErrorMessages.Controller.WordSession.NotFoundSession
 			));
 		}
 
@@ -174,12 +174,12 @@ public class WordSessionController(ILogger<WordSessionController> logger, IRepos
 				{
 					return StatusCode(StatusCodes.Status500InternalServerError, ResponseFactory.NewFailedBaseResponse(
 						StatusCodes.Status500InternalServerError,
-						ErrorMessages.Controller.Session.DeleteFailed
+						ErrorMessages.Controller.WordSession.DeleteFailed
 					));
 				}
 
 				// 返回会话结束信息
-				return Ok(SuccessMessages.Controller.Session.WordSessionOver);
+				return Ok(SuccessMessages.Controller.WordSession.WordSessionOver);
 			}
 		}
 		catch (Exception e)
@@ -187,7 +187,7 @@ public class WordSessionController(ILogger<WordSessionController> logger, IRepos
 			logger.LogWarning(e,"User {} get next word failed", userId);
 			return StatusCode(StatusCodes.Status500InternalServerError, GetNextWordResp.Fail(
 				StatusCodes.Status500InternalServerError,
-				ErrorMessages.Controller.Session.GetNextWordFailed
+				ErrorMessages.Controller.WordSession.GetNextWordFailed
 			));
 		}
 	}	
@@ -221,7 +221,7 @@ public class WordSessionController(ILogger<WordSessionController> logger, IRepos
 		{
 			return StatusCode(StatusCodes.Status404NotFound, ResponseFactory.NewFailedBaseResponse(
                 StatusCodes.Status404NotFound,
-                ErrorMessages.Controller.Session.NotFoundSession
+                ErrorMessages.Controller.WordSession.NotFoundSession
             ));
 		}
 		}
@@ -273,7 +273,7 @@ public class WordSessionController(ILogger<WordSessionController> logger, IRepos
 		{
 			return StatusCode(StatusCodes.Status404NotFound, ResponseFactory.NewFailedBaseResponse(
                 StatusCodes.Status404NotFound,
-                ErrorMessages.Controller.Session.NotFoundSession
+                ErrorMessages.Controller.WordSession.NotFoundSession
             ));
 		}
 
