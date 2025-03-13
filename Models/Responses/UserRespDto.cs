@@ -4,8 +4,6 @@ using Seiun.Utils.Enums;
 
 namespace Seiun.Models.Responses;
 
-#region UserLoginResponse
-
 /// <summary>
 /// Token 信息
 /// </summary>
@@ -16,20 +14,40 @@ public class TokenInfo
     public required long ExpireAt { get; set; }
 }
 
+#region UserLoginResponse
+
 /// <summary>
 /// 用户登录响应
 /// </summary>
-public sealed class UserLoginResp(int code, string message, TokenInfo? tokenInfo)
+public class UserLoginResp(int code, string message, TokenInfo? tokenInfo)
     : BaseRespWithData<TokenInfo>(code, message, tokenInfo)
 {
-    public static UserLoginResp Success(string message, TokenInfo tokenInfo)
+    public static UserLoginResp Success(TokenInfo tokenInfo)
     {
-        return new UserLoginResp(200, message, tokenInfo);
+        return new UserLoginResp(200, SuccessMessages.Controller.User.LoginSuccess, tokenInfo);
     }
 
     public static UserLoginResp Fail(int code, string message)
     {
         return new UserLoginResp(code, message, null);
+    }
+}
+
+#endregion
+
+#region TokenRefreshResponse
+
+public class TokenRefreshResp(int code, string message, TokenInfo? tokenInfo)
+    : BaseRespWithData<TokenInfo>(code, message, tokenInfo)
+{
+    public static TokenRefreshResp Success(TokenInfo tokenInfo)
+    {
+        return new TokenRefreshResp(200, SuccessMessages.Controller.User.TokenRefreshSuccess, tokenInfo);
+    }
+
+    public static TokenRefreshResp Fail(int code, string message)
+    {
+        return new TokenRefreshResp(code, message, null);
     }
 }
 

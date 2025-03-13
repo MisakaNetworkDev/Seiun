@@ -12,8 +12,8 @@ public static class Constants
     public static class User
     {
         public const int MaxDescriptionLength = 256;
-        public const int MaxUserNameLength = 32;
-        public const int MaxNickNameLength = 32;
+        public const int MaxUserNameLength = 16;
+        public const int MaxNickNameLength = 16;
         public const int MaxPhoneNumberLength = 15;
         public const int MaxAvatarSize = 8 * 1024 * 1024; // 8MB
         public const int AvatarMaxWidth = 1024;
