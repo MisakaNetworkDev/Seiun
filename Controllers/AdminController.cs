@@ -10,14 +10,11 @@ using Seiun.Utils.Enums;
 
 namespace Seiun.Controllers;
 
-
-
 [ApiController]
 [Route("/api/admin")]
-public class AdminController(ILogger<AdminController> logger, IRepositoryService repository,IJwtService jwt)
+public class AdminController(ILogger<AdminController> logger, IRepositoryService repository, IJwtService jwt)
     : ControllerBase
 {
-
     [HttpPost("user-list", Name = "GetUserList")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Authorize(Roles = $"{nameof(UserRole.SuperAdmin)}")]
@@ -27,7 +24,7 @@ public class AdminController(ILogger<AdminController> logger, IRepositoryService
     [ProducesResponseType(typeof(BaseResp), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetUserList()
     {
-        try 
+        try
         {
             var users = await repository.UserRepository.GetAllAsync();
             var userList = users.Select(user => new UserList
@@ -38,16 +35,14 @@ public class AdminController(ILogger<AdminController> logger, IRepositoryService
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
                 Gender = user.Gender,
-                NickName = user.NickName,
+                NickName = user.NickName
             }).ToList();
 
             if (userList.Count == 0)
-            {
                 return Ok(UserListResp.Success(
                     ErrorMessages.Controller.User.UserNotFound,
-                    [] 
+                    []
                 ));
-            }
 
             return Ok(UserListResp.Success(
                 SuccessMessages.Controller.User.GetListSuccess,
@@ -57,12 +52,13 @@ public class AdminController(ILogger<AdminController> logger, IRepositoryService
         catch (Exception e)
         {
             logger.LogError(e, "Get user list failed");
-            return StatusCode(StatusCodes.Status500InternalServerError, 
+            return StatusCode(StatusCodes.Status500InternalServerError,
                 UserListResp.Fail(StatusCodes.Status500InternalServerError,
-                ErrorMessages.Controller.User.UserListFailed
-            ));
+                    ErrorMessages.Controller.User.UserListFailed
+                ));
         }
     }
+
     /// <summary>
     /// 用户登录
     /// </summary>
@@ -87,25 +83,22 @@ public class AdminController(ILogger<AdminController> logger, IRepositoryService
         };
 
         if (user == null)
-        {
             return StatusCode(StatusCodes.Status403Forbidden, UserLoginResp.Fail(
                 StatusCodes.Status403Forbidden,
                 ErrorMessages.Controller.User.UserNotFound
             ));
-        }
 
         if (!PasswordUtils.VerifyPasswordHash(userLogin.Password, user.PasswordHash, user.PasswordSalt))
-        {
             return StatusCode(StatusCodes.Status403Forbidden, UserLoginResp.Fail(
                 StatusCodes.Status403Forbidden,
                 ErrorMessages.Controller.User.UserLoginFailed
             ));
-        }
 
         var token = jwt.GenerateToken(user);
         var tokenInfo = new TokenInfo
         {
             Token = token,
+            UserId = user.Id.ToString(),
             ExpireAt = DateTimeOffset.Now.AddHours(Constants.Token.TokenExpirationTime).ToUnixTimeSeconds()
         };
         return Ok(UserLoginResp.Success(SuccessMessages.Controller.User.LoginSuccess, tokenInfo));

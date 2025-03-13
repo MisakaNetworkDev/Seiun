@@ -12,6 +12,7 @@ namespace Seiun.Models.Responses;
 public class TokenInfo
 {
     public required string Token { get; set; }
+    public required string UserId { get; set; }
     public required long ExpireAt { get; set; }
 }
 
@@ -43,8 +44,9 @@ public class UserProfile
 {
     public required string UserName { get; set; }
     public required string NickName { get; set; }
-    public required string AvatarUrl { get; set; }
+    public required string? AvatarUrl { get; set; }
     public required Gender Gender { get; set; }
+    public required long JoinTime { get; set; }
 }
 
 /// <summary>
@@ -55,13 +57,18 @@ public sealed class UserProfileResp(int code, string message, UserProfile? userP
 {
     public static UserProfileResp Success(UserEntity userEntity)
     {
+        var avatarUrl = userEntity.AvatarFileName == null
+            ? null
+            : $"/resources/avatar/{userEntity.AvatarFileName}";
+
         return new UserProfileResp(StatusCodes.Status200OK, SuccessMessages.Controller.User.GetProfileSuccess,
             new UserProfile
             {
                 UserName = userEntity.UserName,
                 NickName = userEntity.NickName,
-                AvatarUrl = $"/resources/avatar/{userEntity.AvatarFileName}",
-                Gender = userEntity.Gender
+                AvatarUrl = avatarUrl,
+                Gender = userEntity.Gender,
+                JoinTime = userEntity.CreatedAt.ToUnixTimeSeconds()
             });
     }
 
@@ -70,6 +77,7 @@ public sealed class UserProfileResp(int code, string message, UserProfile? userP
         return new UserLoginResp(code, message, null);
     }
 }
+
 #endregion
 
 #region UserChickInDayResponse
@@ -93,6 +101,7 @@ public sealed class UserCheckInDayResp(int code, string message, UserCheckInDay?
         return new UserCheckInDayResp(code, message, null);
     }
 }
+
 #endregion
 
 #region UserListResponse
@@ -111,7 +120,7 @@ public class UserList
 public sealed class UserListResp(int code, string message, List<UserList>? userList)
     : BaseRespWithData<List<UserList>>(code, message, userList)
 {
-    public static UserListResp Success(string message, List<UserList> userList) 
+    public static UserListResp Success(string message, List<UserList> userList)
     {
         return new UserListResp(200, message, userList);
     }
