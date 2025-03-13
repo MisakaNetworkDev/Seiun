@@ -101,6 +101,6 @@ public class AdminController(ILogger<AdminController> logger, IRepositoryService
             UserId = user.Id.ToString(),
             ExpireAt = DateTimeOffset.Now.AddHours(Constants.Token.TokenExpirationTime).ToUnixTimeSeconds()
         };
-        return Ok(UserLoginResp.Success(SuccessMessages.Controller.User.LoginSuccess, tokenInfo));
+        return Ok(UserLoginResp.Success(tokenInfo));
     }
 }

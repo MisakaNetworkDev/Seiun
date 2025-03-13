@@ -107,9 +107,46 @@ public class UserController(ILogger<UserController> logger, IRepositoryService r
             Token = token,
             UserId = user.Id.ToString(),
             ExpireAt = DateTimeOffset.Now.AddHours(Constants.Token.TokenExpirationTime).ToUnixTimeSeconds()
+            // ExpireAt = DateTimeOffset.Now.AddSeconds(60).ToUnixTimeSeconds() // only test code
         };
-        return Ok(UserLoginResp.Success(SuccessMessages.Controller.User.LoginSuccess, tokenInfo));
+        return Ok(UserLoginResp.Success(tokenInfo));
     }
+
+    /// <summary>
+    ///     续签 JWT Token
+    /// </summary>
+    /// <returns>新 Token</returns>
+    [HttpGet("refresh-token", Name = "RefreshToken")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [ProducesResponseType(typeof(BaseResp), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BaseResp), StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> RefreshToken()
+    {
+        var userId = User.GetUserId();
+        if (userId == null)
+            return StatusCode(StatusCodes.Status403Forbidden, TokenRefreshResp.Fail(
+                StatusCodes.Status403Forbidden,
+                ErrorMessages.Controller.Any.InvalidJwtToken
+            ));
+
+        var user = await repository.UserRepository.GetByIdAsync(userId.Value);
+        if (user == null)
+            return StatusCode(StatusCodes.Status403Forbidden, TokenRefreshResp.Fail(
+                StatusCodes.Status403Forbidden,
+                ErrorMessages.Controller.User.UserNotFound
+            ));
+
+        var token = jwt.GenerateToken(user);
+        var tokenInfo = new TokenInfo
+        {
+            Token = token,
+            UserId = user.Id.ToString(),
+            ExpireAt = DateTimeOffset.Now.AddHours(Constants.Token.TokenExpirationTime).ToUnixTimeSeconds()
+            // ExpireAt = DateTimeOffset.Now.AddSeconds(60).ToUnixTimeSeconds() // only test code
+        };
+        return Ok(TokenRefreshResp.Success(tokenInfo));
+    }
+
 
     /// <summary>
     ///     更新用户信息
@@ -274,6 +311,7 @@ public class UserController(ILogger<UserController> logger, IRepositoryService r
     /// <param name="userId">用户ID</param>
     /// <returns>用户信息</returns>
     [HttpGet("profile/{userId:Guid}", Name = "GetProfile")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ProducesResponseType(typeof(UserProfileResp), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(UserProfileResp), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetProfile(Guid userId)
