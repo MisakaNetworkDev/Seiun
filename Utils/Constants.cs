@@ -43,7 +43,7 @@ public static class Constants
         public const int ArticleImgStorageWidth = 512;
         public static readonly string[] AllowedArticleImageExtensions = [".jpg", ".jpeg", ".png", "webp"];
         public const int MaxArticleCoverSize = 5 * 1024 * 1024;
-        public const int MaxArticleCoverHeight =  1024;
+        public const int MaxArticleCoverHeight = 1024;
         public const int MaxArticleCoverWidth = 1024;
         public const int ArticleCoverStorageSize = 256;
     }
