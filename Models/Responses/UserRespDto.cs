@@ -65,6 +65,8 @@ public class UserProfile
     public required string? AvatarUrl { get; set; }
     public required Gender Gender { get; set; }
     public required long JoinTime { get; set; }
+    public required bool IsBanned { get; set; }
+    public required string? Description { get; set; }
 }
 
 /// <summary>
@@ -86,7 +88,9 @@ public sealed class UserProfileResp(int code, string message, UserProfile? userP
                 NickName = userEntity.NickName,
                 AvatarUrl = avatarUrl,
                 Gender = userEntity.Gender,
-                JoinTime = userEntity.CreatedAt.ToUnixTimeSeconds()
+                JoinTime = userEntity.CreatedAt.ToUnixTimeSeconds(),
+                IsBanned = userEntity.IsBanned,
+                Description = userEntity.Description
             });
     }
 
