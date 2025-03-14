@@ -311,7 +311,6 @@ public class UserController(ILogger<UserController> logger, IRepositoryService r
     /// <param name="userId">用户ID</param>
     /// <returns>用户信息</returns>
     [HttpGet("profile/{userId:Guid}", Name = "GetProfile")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ProducesResponseType(typeof(UserProfileResp), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(UserProfileResp), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetProfile(Guid userId)
