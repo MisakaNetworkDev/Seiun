@@ -485,3 +485,6 @@ $RECYCLE.BIN/
 
 # Apikey file
 secret.json
+
+# Migration files
+Migrations
