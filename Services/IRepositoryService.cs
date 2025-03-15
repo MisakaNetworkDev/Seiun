@@ -20,4 +20,7 @@ public interface IRepositoryService
 
     IUserCheckInRepository UserCheckInRepository { get; }
     IAIArticleRepository AIArticleRepository { get; }
+    IFillInBlankRepository FillInBlankRepository { get; }
+    IFillInBlankAnswerRepository FillInBlankAnswerRepository { get; }
+    IFillInBlankWordRepository FillInBlankWordRepository { get; }
 }

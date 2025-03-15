@@ -126,29 +126,38 @@ public sealed class ArticleDetailResp(int code, string message, ArticleDetail? a
 
 # region GetAIArticle
 
-public class AIArticleDetail
+public class AiArticleList
 {	
-	public required string AIArticle { get; set; }
-	public required string AICoverURL{ get; set; }
+ public	required List<AiArticleDetail> AiArticles { get; set; }
 }
 
-public sealed class AIArticleDetailResp(int code, string message, AIArticleDetail? aiArticleDetail)
-	: BaseRespWithData<AIArticleDetail>(code, message, aiArticleDetail)
+public class AiArticleDetail
 {
-	public static AIArticleDetailResp Success(AIArticleEntity aiArticleEntity)
+	public required string AiArticle { get; set; }
+	public required string AiCoverUrl{ get; set; }
+}
+
+public sealed class AiArticleDetailResp(int code, string message, AiArticleList? aiArticleDetails)
+	: BaseRespWithData<AiArticleList>(code, message, aiArticleDetails)
+{
+	public static AiArticleDetailResp Success(List<AiArticleEntity> aiArticleEntities)
 	{
-		return new AIArticleDetailResp(StatusCodes.Status200OK, SuccessMessages.Controller.Article.GetArticleDetailSuccess,
-			new AIArticleDetail
+		return new AiArticleDetailResp(StatusCodes.Status200OK, SuccessMessages.Controller.Article.GetArticleDetailSuccess,
+			new AiArticleList
 			{
-				AIArticle = aiArticleEntity.Article,
-				AICoverURL = aiArticleEntity.CoverURL
+				AiArticles = aiArticleEntities.Select(aiArticleEntity => 
+				new AiArticleDetail
+				{
+					AiArticle = aiArticleEntity.Article, AiCoverUrl = aiArticleEntity.CoverUrl 
+					
+				}).ToList()
 			}
 		);
 	}
 
-	public static AIArticleDetailResp Fail(int code, string message)
+	public static AiArticleDetailResp Fail(int code, string message)
 	{
-		return new AIArticleDetailResp(code, message, null);
+		return new AiArticleDetailResp(code, message, null);
 	}
 }
 

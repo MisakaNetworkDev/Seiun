@@ -92,5 +92,10 @@ public static class SuccessMessages
         {
             public const string WordSessionOver = "controller.session.word_session_over";
         }
+
+        public static class Question
+        {
+            public const string GetFillInBlankSuccess = "controller.question.get.fill_in_blank_success";
+        }
     }
 }

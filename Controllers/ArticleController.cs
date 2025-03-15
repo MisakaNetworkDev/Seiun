@@ -11,24 +11,23 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using SixLabors.ImageSharp.Processing;
 using Seiun.Utils;
 using Nest;
-using OpenAI;
-using System.ClientModel;
-using OpenAI.Chat;
-using System.Text.Json;
 
 namespace Seiun.Controllers;
 /// <summary>
 /// 文章控制器
 /// </summary>
 /// <param name="logger">日志</param>
-/// <param name="repository">仓库服务</param>
+/// <param name="repository">日志</param>
+/// <param name="elasticClient">Elasticsearch 搜索客户端</param>
+/// <param name="articleSearch">文章搜索服务</param>
+/// <param name="aiRequest">AI请求服务</param>
 [ApiController,Route("/api/article")]
 public class ArticleController(ILogger<ArticleController> logger, IRepositoryService repository, IElasticClient elasticClient, IArticleSearchService articleSearch, IAIRequestService aiRequest) : ControllerBase{
 	
 	/// <summary>
 	/// 上传文章
 	/// </summary>
-	/// <param name="postCreate">文章信息DTO</param>
+	/// <param name="articleCreate">文章信息DTO</param>
 	/// <returns>上传结果</returns>
 	[HttpPost("create", Name = "CreateArticle")]
 	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -69,7 +68,7 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 		repository.ArticleRepository.Create(article);
 		if(await repository.ArticleRepository.SaveAsync())
 		{
-			var articleSearch = new ArticleSearchEntity
+			var articleSearchEntity = new ArticleSearchEntity
 			{
 				Article = article.Article,
 				CreatorUserName = user.UserName,
@@ -78,8 +77,8 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 				ArticleId = article.Id
 			};
 
-			var indexResponse = await elasticClient.IndexAsync(articleSearch, i => i
-				.Id(articleSearch.ArticleId.ToString()));
+			var indexResponse = await elasticClient.IndexAsync(articleSearchEntity, i => i
+				.Id(articleSearchEntity.ArticleId.ToString()));
 			if(indexResponse.IsValid)
 			{
 				return Ok(ResponseFactory.NewSuccessBaseResponse(SuccessMessages.Controller.Article.CreateSuccess));
@@ -156,7 +155,7 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 			));
 		}
 
-		if (image.Width > Constants.Article.ArticleImageMaxWidth || image.Height > Constants.Article.ArticleImageMaxHeight)
+		if (image.Width > Constants.Article.MaxArticleCoverWidth || image.Height > Constants.Article.MaxArticleCoverHeight)
 		{
 			return BadRequest(ResponseFactory.NewFailedBaseResponse(
 				StatusCodes.Status400BadRequest,
@@ -164,7 +163,6 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 			));
 		}
 		
-		var articleCoverName = string.Empty;
 		try
 		{
 			await using var processedImageStream = new MemoryStream();
@@ -175,7 +173,8 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
             }));
 			await image.SaveAsWebpAsync(processedImageStream);
 			processedImageStream.Seek(0, SeekOrigin.Begin);
-			articleCoverName = await repository.ArticleRepository.UploadArticleImgAsync(processedImageStream, Constants.BucketNames.ArticleCover);
+			var articleCoverName = await repository.ArticleRepository.UploadArticleImgAsync(processedImageStream, Constants.BucketNames.ArticleCover);
+			return Ok(ArticleCoverResp.Success(articleCoverName));
 		}
 		catch (Exception e)
 		{
@@ -185,8 +184,6 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 				ErrorMessages.Controller.Article.ArticleCoverUploadFailed
 			));
 		}
-		
-		return Ok(ArticleCoverResp.Success(articleCoverName));
 	}
 
 	/// <summary>
@@ -287,7 +284,7 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 	/// <summary>
 	/// 删除文章
 	/// </summary>
-	/// <param name="postId">文章ID</param>
+	/// <param name="articleId">文章ID</param>
 	/// <returns>删除结果</returns>
 	[HttpDelete("delete/{articleId:Guid}", Name = "DeleteArticle")]
 	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -692,12 +689,11 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 	/// <returns>AI文章</returns>
 	[HttpGet("get-ai-article", Name = "GetAIArticle")]
 	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-	[Authorize(Roles = $"{nameof(UserRole.User)},{nameof(UserRole.Creator)}{nameof(UserRole.Admin)},{nameof(UserRole.SuperAdmin)}")]
-	[ProducesResponseType(typeof(AIArticleDetailResp), StatusCodes.Status200OK)]
-	[ProducesResponseType(typeof(AIArticleDetailResp), StatusCodes.Status403Forbidden)]
-	[ProducesResponseType(typeof(AIArticleDetailResp), StatusCodes.Status404NotFound)]
-	[ProducesResponseType(typeof(AIArticleDetailResp), StatusCodes.Status500InternalServerError)]
-	public async Task<IActionResult> GetAIArticle()
+	[Authorize(Roles = $"{nameof(UserRole.User)},{nameof(UserRole.Creator)},{nameof(UserRole.Admin)},{nameof(UserRole.SuperAdmin)}")]
+	[ProducesResponseType(typeof(AiArticleDetailResp), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(AiArticleDetailResp), StatusCodes.Status403Forbidden)]
+	[ProducesResponseType(typeof(AiArticleDetailResp), StatusCodes.Status404NotFound)] 
+	public async Task<IActionResult> GetAiArticle()
 	{
 		var userId = User.GetUserId();
 		if(userId == null)
@@ -707,59 +703,16 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 				ErrorMessages.Controller.Any.InvalidJwtToken
 			));
 		}
-
-		var LatestFinishedWordGroup = await repository.FinishedWordRepository.GetLatestFinishedWordIdAsync(userId.Value);
-		if(LatestFinishedWordGroup == null)
+	
+		var aiArticleEntities = await repository.AIArticleRepository.GetByUserIdAsync(userId.Value);
+		if (aiArticleEntities == null)
 		{
-			return NotFound(AIArticleDetailResp.Fail(
+			return NotFound(AiArticleDetailResp.Fail(
 				StatusCodes.Status404NotFound,
-				ErrorMessages.Controller.Word.WordNotFound
+				ErrorMessages.Controller.Article.AiArticleNotFound
 			));
 		}
-
-		var aIArticleEntity = await repository.AIArticleRepository.GetByUserIdAsync(userId.Value);
-		if(aIArticleEntity != null&&aIArticleEntity.SessionId==LatestFinishedWordGroup.Key)
-		{	
-			return Ok(AIArticleDetailResp.Success(aIArticleEntity));
-		}
-
-		var LatestFinishedWordRecord = LatestFinishedWordGroup.ToList();
-		var LatestFinishedWords = await repository.WordRepository.GetByGuidsAsync([.. LatestFinishedWordRecord.Select(x => x.WordId)]);
-		if(LatestFinishedWords == null)
-		{
-			return NotFound(AIArticleDetailResp.Fail(
-				StatusCodes.Status404NotFound,
-				ErrorMessages.Controller.Word.WordNotFound
-			));
-		}
-
-		string? aiArticle = await aiRequest.GetAIArticleAsync([.. LatestFinishedWords.Select(x => x.WordText)]);
-		if(aiArticle != null)
-		{
-			string? aiCover = await aiRequest.GetAICoverAsync(aiArticle);
-			if(aiCover != null && aiCover != string.Empty)
-			{
-				aIArticleEntity = new AIArticleEntity
-				{
-					UserId = userId.Value,
-					SessionId = LatestFinishedWordGroup.Key,
-					Article = aiArticle,
-					CoverURL = aiCover,
-					CreatedAt = DateTime.UtcNow
-				};
-				repository.AIArticleRepository.Create(aIArticleEntity);
-				if(await repository.AIArticleRepository.SaveAsync())
-				{
-					return Ok(AIArticleDetailResp.Success(aIArticleEntity));
-				}
-			}
-		}
-
-		logger.LogWarning("User {} failed to get AI article", userId.Value);
-		return StatusCode(StatusCodes.Status500InternalServerError,AIArticleDetailResp.Fail(
-			StatusCodes.Status500InternalServerError,
-			ErrorMessages.Controller.Article.AIArticleFailed
-		));
+		return Ok(AiArticleDetailResp.Success(aiArticleEntities));
 	}
 }
 
