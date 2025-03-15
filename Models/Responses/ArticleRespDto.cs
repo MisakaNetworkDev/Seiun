@@ -5,26 +5,26 @@ namespace Seiun.Models.Responses;
 
 # region ArticleListResponse
 
-public class ArticleImgNameList
+public class ArticleImgDetail
 {
-	public required List<string> ArticleImgNames { get; set; }
+	public required string ArticleImgName { get; set; }
 }
 
-public sealed class ArticleImgNameListResp(int code, string message, ArticleImgNameList? articleImgNameList)
-	: BaseRespWithData<ArticleImgNameList>(code, message, articleImgNameList)
+public sealed class ArticleImgNameResp(int code, string message, ArticleImgDetail? articleImgNameList)
+	: BaseRespWithData<ArticleImgDetail>(code, message, articleImgNameList)
 {
-	public static ArticleImgNameListResp Success(List<string> articleImgNames)
+	public static ArticleImgNameResp Success(string articleImgName)
 	{
-		return new ArticleImgNameListResp(StatusCodes.Status200OK, SuccessMessages.Controller.Article.GetArticleImgNameListSuccess,
-			new ArticleImgNameList
+		return new ArticleImgNameResp(StatusCodes.Status200OK, SuccessMessages.Controller.Article.GetArticleImgNameSuccess,
+			new ArticleImgDetail
 			{
-				ArticleImgNames = articleImgNames
+				ArticleImgName = articleImgName
 			});
 	}
 
-	public static ArticleImgNameListResp Fail(int code, string message)
+	public static ArticleImgNameResp Fail(int code, string message)
 	{
-		return new ArticleImgNameListResp(code, message, null);
+		return new ArticleImgNameResp(code, message, null);
 	}
 }
 

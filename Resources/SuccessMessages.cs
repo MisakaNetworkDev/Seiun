@@ -32,8 +32,8 @@ public static class SuccessMessages
 
             public const string LikeSuccess = "controller.article.like.like_success";
 
-            public const string GetArticleImgNameListSuccess =
-                "controller.article.articleimgs.get_articleimgnamelist_success";
+            public const string GetArticleImgNameSuccess =
+                "controller.article.articleimgs.get_articleimgname_success";
 
             public const string GetArticleCoverNameSuccess =
                 "controller.article.articlecover.get_articlecovername_success";

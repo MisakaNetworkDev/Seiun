@@ -94,111 +94,18 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 	}
 
 	/// <summary>
-	/// 上传文章封面
-	/// </summary>
-	/// <param name="articleCoverFile"></param>
-	/// <returns></returns>
-	[HttpPost("upload-cover", Name = "UploadArticleCover")]
-	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-	[Authorize(Roles = $"{nameof(UserRole.Creator)},{nameof(UserRole.Admin)},{nameof(UserRole.SuperAdmin)}")]
-	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status200OK)]
-	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status403Forbidden)]
-	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status400BadRequest)]
-	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status500InternalServerError)]
-	public async Task<IActionResult> UploadArticleCover(IFormFile? articleCoverFile)
-	{
-		var usserId = User.GetUserId();
-		if(usserId == null)
-		{
-			return StatusCode(StatusCodes.Status403Forbidden, ResponseFactory.NewFailedBaseResponse(
-				StatusCodes.Status403Forbidden,
-				ErrorMessages.Controller.Any.InvalidJwtToken
-			));
-		}
-
-		if(articleCoverFile == null)
-		{
-			return BadRequest(ResponseFactory.NewFailedBaseResponse(
-                StatusCodes.Status400BadRequest,
-                ErrorMessages.Controller.Any.FileNotUploaded
-            ));
-		}
-
-		if(articleCoverFile.Length > Constants.Article.MaxArticleCoverSize)
-		{
-			return BadRequest(ResponseFactory.NewFailedBaseResponse(
-				StatusCodes.Status400BadRequest,
-				ErrorMessages.Controller.Any.FileTooLarge
-			));
-		}
-
-		var fileExtension = Path.GetExtension(articleCoverFile.FileName).ToLower();
-		if(!Constants.Article.AllowedArticleImageExtensions.Contains(fileExtension))
-		{
-			return BadRequest(ResponseFactory.NewFailedBaseResponse(
-				StatusCodes.Status400BadRequest,
-				ErrorMessages.Controller.Any.FileFormatNotSupported
-			));
-		}
-
-		await using var articleCoverStream = articleCoverFile.OpenReadStream();
-		Image image;
-		try
-		{
-			image = await Image.LoadAsync(articleCoverStream);
-		}
-		catch
-		{
-			return BadRequest(ResponseFactory.NewFailedBaseResponse(
-				StatusCodes.Status400BadRequest,
-				ErrorMessages.Controller.Any.FileFormatNotSupported
-			));
-		}
-
-		if (image.Width > Constants.Article.MaxArticleCoverWidth || image.Height > Constants.Article.MaxArticleCoverHeight)
-		{
-			return BadRequest(ResponseFactory.NewFailedBaseResponse(
-				StatusCodes.Status400BadRequest,
-				ErrorMessages.Controller.Any.ImageSizeTooLarge
-			));
-		}
-		
-		try
-		{
-			await using var processedImageStream = new MemoryStream();
-			image.Mutate(ipc => ipc.Resize(new ResizeOptions
-            {
-                Size = new Size(Constants.Article.ArticleImgStorageWidth, 0),
-                Mode = ResizeMode.Max
-            }));
-			await image.SaveAsWebpAsync(processedImageStream);
-			processedImageStream.Seek(0, SeekOrigin.Begin);
-			var articleCoverName = await repository.ArticleRepository.UploadArticleImgAsync(processedImageStream, Constants.BucketNames.ArticleCover);
-			return Ok(ArticleCoverResp.Success(articleCoverName));
-		}
-		catch (Exception e)
-		{
-			logger.LogError(e, "User {} fail to upload article Cover", usserId);
-			return StatusCode(StatusCodes.Status500InternalServerError, ResponseFactory.NewFailedBaseResponse(
-				StatusCodes.Status500InternalServerError,
-				ErrorMessages.Controller.Article.ArticleCoverUploadFailed
-			));
-		}
-	}
-
-	/// <summary>
 	/// 上传文章图片
 	/// </summary>
-	/// <param name="articleImgFiles">文章图片文件</param>
+	/// <param name="articleImgFile">文章图片文件</param>
 	/// <returns>图片名称</returns>
 	[HttpPost("upload-img", Name = "UploadArticleImg")]
 	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 	[Authorize(Roles = $"{nameof(UserRole.Creator)},{nameof(UserRole.Admin)},{nameof(UserRole.SuperAdmin)}")]
-	[ProducesResponseType(typeof(ArticleImgNameListResp), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(ArticleImgNameResp), StatusCodes.Status200OK)]
 	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status400BadRequest)]
 	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status403Forbidden)]
 	[ProducesResponseType(typeof(BaseResp), StatusCodes.Status500InternalServerError)]
-	public async Task<IActionResult> UploadArticleImg(List<IFormFile>? articleImgFiles)
+	public async Task<IActionResult> UploadArticleImg(IFormFile? articleImgFile)
 	{
 		var userId = User.GetUserId();
 		if(userId == null)
@@ -209,76 +116,69 @@ public class ArticleController(ILogger<ArticleController> logger, IRepositorySer
 			));
 		}
 
-		if(articleImgFiles == null || articleImgFiles.Count == 0)
+		if(articleImgFile == null)
 		{
 			return BadRequest(ResponseFactory.NewFailedBaseResponse(
                 StatusCodes.Status400BadRequest,
                 ErrorMessages.Controller.Any.FileNotUploaded
             ));
 		}
-
-		List<string> articleImgNames = [];
-
-		foreach(var articleimgFile in articleImgFiles)
-		{	
-			if(articleimgFile.Length > Constants.Article.MaxArticleImageSize)
-			{
-				return BadRequest(ResponseFactory.NewFailedBaseResponse(
-					StatusCodes.Status400BadRequest,
-					ErrorMessages.Controller.Any.FileTooLarge
-				));
-			}
-
-			var fileExtension = Path.GetExtension(articleimgFile.FileName).ToLower();
-			if(!Constants.Article.AllowedArticleImageExtensions.Contains(fileExtension))
-			{
-				return BadRequest(ResponseFactory.NewFailedBaseResponse(
-					StatusCodes.Status400BadRequest,
-					ErrorMessages.Controller.Any.FileFormatNotSupported
-				));
-			}
-
-			await using var articleimgStream = articleimgFile.OpenReadStream();
-			Image image;
-			try
-			{
-				image = await Image.LoadAsync(articleimgStream);
-			}
-			catch
-			{
-				return BadRequest(ResponseFactory.NewFailedBaseResponse(
-					StatusCodes.Status400BadRequest,
-					ErrorMessages.Controller.Any.FileFormatNotSupported
-				));
-			}
-
-			if (image.Width > Constants.Article.ArticleImageMaxWidth || image.Height > Constants.Article.ArticleImageMaxHeight)
-			{
-				return BadRequest(ResponseFactory.NewFailedBaseResponse(
-					StatusCodes.Status400BadRequest,
-					ErrorMessages.Controller.Any.ImageSizeTooLarge
-				));
-			}
-
-			try
-			{
-				await using var processedImageStream = new MemoryStream();
-				await image.SaveAsWebpAsync(processedImageStream);
-				processedImageStream.Seek(0, SeekOrigin.Begin);
-			    var articleImgName = await repository.ArticleRepository.UploadArticleImgAsync(processedImageStream, Constants.BucketNames.ArticleImages);
-			    articleImgNames.Add(articleImgName);
-			}
-			catch (Exception e)
-			{
-				logger.LogError(e, "User {} fail to upload article image", userId);
-				return StatusCode(StatusCodes.Status500InternalServerError, ResponseFactory.NewFailedBaseResponse(
-					StatusCodes.Status500InternalServerError,
-					ErrorMessages.Controller.Article.ArticleImgsUploadFailed
-				));
-			}
+		
+		if(articleImgFile.Length > Constants.Article.MaxArticleImageSize)
+		{
+			return BadRequest(ResponseFactory.NewFailedBaseResponse(
+				StatusCodes.Status400BadRequest,
+				ErrorMessages.Controller.Any.FileTooLarge
+			));
 		}
 
-		return Ok(ArticleImgNameListResp.Success(articleImgNames));
+		var fileExtension = Path.GetExtension(articleImgFile.FileName).ToLower();
+		if(!Constants.Article.AllowedArticleImageExtensions.Contains(fileExtension))
+		{
+			return BadRequest(ResponseFactory.NewFailedBaseResponse(
+				StatusCodes.Status400BadRequest,
+				ErrorMessages.Controller.Any.FileFormatNotSupported
+			));
+		}
+
+		await using var articleImgStream = articleImgFile.OpenReadStream();
+		Image image;
+		try
+		{
+			image = await Image.LoadAsync(articleImgStream);
+		}
+		catch
+		{
+			return BadRequest(ResponseFactory.NewFailedBaseResponse(
+				StatusCodes.Status400BadRequest,
+				ErrorMessages.Controller.Any.FileFormatNotSupported
+			));
+		}
+
+		if (image.Width > Constants.Article.ArticleImageMaxWidth || image.Height > Constants.Article.ArticleImageMaxHeight)
+		{
+			return BadRequest(ResponseFactory.NewFailedBaseResponse(
+				StatusCodes.Status400BadRequest,
+				ErrorMessages.Controller.Any.ImageSizeTooLarge
+			));
+		}
+
+		try
+		{
+			await using var processedImageStream = new MemoryStream();
+			await image.SaveAsWebpAsync(processedImageStream);
+			processedImageStream.Seek(0, SeekOrigin.Begin);
+		    var articleImgName = await repository.ArticleRepository.UploadArticleImgAsync(processedImageStream, Constants.BucketNames.ArticleImages);
+		    return Ok(ArticleImgNameResp.Success(articleImgName));
+		}
+		catch (Exception e)
+		{
+			logger.LogError(e, "User {} fail to upload article image", userId);
+			return StatusCode(StatusCodes.Status500InternalServerError, ResponseFactory.NewFailedBaseResponse(
+				StatusCodes.Status500InternalServerError,
+				ErrorMessages.Controller.Article.ArticleImgUploadFailed
+			));
+		}
 	}
 
 	/// <summary>

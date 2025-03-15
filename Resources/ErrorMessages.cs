@@ -86,9 +86,7 @@ public static class ErrorMessages
             public const string LikeFailed = "error.controller.article.like.like_failed";
             public const string ArticleLiked = "error.controller.article.like.article_is_liked";
             public const string ArticleNotLiked = "error.controller.article.cancellike.article_not_liked";
-            public const string ArticleImgsUploadFailed = "error.controller.article.uploadarticleimage.upload_failed";
-            public const string GetAiArticleFailed = "error.controller.article.getaiarticle.get_aiarticle_failed";
-            public const string ArticleCoverUploadFailed = "error.controller.article.uploadarticlecover.upload_failed";
+            public const string ArticleImgUploadFailed = "error.controller.article.uploadarticleimage.upload_failed";
             public const string AiArticleNotFound = "error.controller.article.getaiarticle.aiarticle_not_found";
         }
 
