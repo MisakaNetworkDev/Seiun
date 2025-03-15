@@ -17,8 +17,11 @@ public class SeiunDbContext(DbContextOptions<SeiunDbContext> options) : DbContex
     public required DbSet<WordEntity> Words { get; set; }
     public required DbSet<ErrorWordRecordEntity> ErrorWords { get; set; }
     public required DbSet<FinishedWordRecordEntity> FinishedWords { get; set; }
-    public required DbSet<AIArticleEntity> AIArticles { get; set; }
+    public required DbSet<AiArticleEntity> AiArticles { get; set; }
     public required DbSet<UserCheckInEntity> UserCheckIns { get; set; }
+    public required DbSet<FillInBlankEntity> FillInBlanks { get; set; }
+    public required DbSet<FillInBlankAnswerEntity> FillInBlankAnswers { get; set; }
+    public required DbSet<FillInBlankWordEntity> FillInBlankWords { get; set; }
     // protected override void OnModelCreating(ModelBuilder modelBuilder)
     // {
     //     base.OnModelCreating(modelBuilder);

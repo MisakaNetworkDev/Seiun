@@ -46,6 +46,13 @@ public static class Constants
         public const int MaxArticleCoverHeight =  1024;
         public const int MaxArticleCoverWidth = 1024;
         public const int ArticleCoverStorageSize = 256;
+        public const int MaxArticleLength = 5000;
+        public const int MaxCoverUrlLength = 1000;
+    }
+
+    public static class PublicAnnotation
+    {
+        public const int MaxAnnotationLength = 500;
     }
 
     public static class Word

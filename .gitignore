@@ -483,5 +483,5 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 
-# DeepSeek apikey file
-.secret.json
+# Apikey file
+secret.json

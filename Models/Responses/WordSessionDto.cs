@@ -38,18 +38,41 @@ public sealed class StartStudyResp(int code, string message, WordSessionDetail? 
 
 public class NextWordDetail
 {
-	public required WordEntity Options { get; set; }
+	public required List<OptionDetail> Options { get; set; }
+	public required AnswerDetail Answer { get; set; }
 }
+
+public class OptionDetail
+{
+	public required Guid WordId { get; set; }
+	public required string Word { get; set; }
+	public string? Pronunciation { get; set; }
+	public required string Definition { get; set; }
+}
+
+public class AnswerDetail
+{
+	public required Guid WordId { get; set; }
+	public required string Word { get; set; }
+}
+
 
 public sealed class GetNextWordResp(int code, string message, NextWordDetail? nextWordDetail)
 	: BaseRespWithData<NextWordDetail>(code, message, nextWordDetail)
 {
 	public static GetNextWordResp Success(WordEntity nextWord)
 	{
+		var distractedWords = nextWord.Distractors.Select(d => d.DistractedWord).ToList();
+		var options = distractedWords.Select(d => 
+			new OptionDetail { WordId = d.Id, Word = d.WordText, Pronunciation = d.Pronunciation, Definition = d.Definition })
+		.ToList();
+		var answer = new AnswerDetail { WordId = nextWord.Id, Word = nextWord.WordText };
+		
 		return new GetNextWordResp(StatusCodes.Status200OK, SuccessMessages.Controller.StudySession.GetNextWordSuccess,
 			new NextWordDetail
 			{
-				Options = nextWord
+				Options = options,
+				Answer = answer
 			});
 	}
 

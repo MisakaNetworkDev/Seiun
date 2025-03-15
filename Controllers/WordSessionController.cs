@@ -11,7 +11,7 @@ using Seiun.Entities;
 namespace Seiun.Controllers;
 
 [ApiController,Route("api/session")]
-public class WordSessionController(ILogger<WordSessionController> logger, IRepositoryService repository, ICurrentStudySessionService currentStudySession)
+public class WordSessionController(ILogger<WordSessionController> logger, IRepositoryService repository, ICurrentStudySessionService currentStudySession, IAIRequestService aiRequest)
 	: ControllerBase
 {
 	/// <summary>
@@ -139,48 +139,105 @@ public class WordSessionController(ILogger<WordSessionController> logger, IRepos
 			{
 				return Ok(GetNextWordResp.Success(word));
 			}
+			
+			var latestFinishedWordGroup = await repository.FinishedWordRepository.GetLatestFinishedWordIdAsync(userId.Value);
+			if(latestFinishedWordGroup == null)
+			{
+				return NotFound(AiArticleDetailResp.Fail(
+					StatusCodes.Status404NotFound,
+					ErrorMessages.Controller.Word.LatestWordNotFound
+				));
+			}
+			
+			var latestFinishedWordEntities = latestFinishedWordGroup.ToList();
+			var latestFinishedWords =
+				(await repository.WordRepository.GetByGuidsAsync([.. latestFinishedWordEntities.Select(x => x.WordId)]))
+				.ToList(); 
+			if(latestFinishedWords.Count == 0)
+			{
+				return NotFound(AiArticleDetailResp.Fail(
+					StatusCodes.Status404NotFound,
+					ErrorMessages.Controller.Word.LatestWordNotFound
+				));
+			}
+
+			var aiArticle = await aiRequest.GetAIArticleAsync([.. latestFinishedWords.Select(x => x.WordText)]);
+			if (aiArticle == null)
+			{
+				logger.LogError("AI Article is null");
+				return StatusCode(StatusCodes.Status500InternalServerError, ResponseFactory.NewFailedBaseResponse(
+					StatusCodes.Status500InternalServerError,
+					ErrorMessages.Controller.WordSession.CreateAiArticleFailed
+				));
+			}
+
+			var aiCover = await aiRequest.GetAICoverAsync(aiArticle);
+			if (string.IsNullOrEmpty(aiCover))
+			{
+				logger.LogError("AI Cover is null");
+				return StatusCode(StatusCodes.Status500InternalServerError, ResponseFactory.NewFailedBaseResponse(
+					StatusCodes.Status500InternalServerError,
+					ErrorMessages.Controller.WordSession.CreateAiCoverFailed
+				));
+			}
+
+			var aIArticleEntity = new AiArticleEntity
+			{
+				UserId = userId.Value,
+				SessionId = latestFinishedWordGroup.Key,
+				Article = aiArticle,
+				CoverUrl = aiCover,
+				CreatedAt = DateTime.UtcNow
+			};
+			repository.AIArticleRepository.Create(aIArticleEntity);
+			if(!await repository.AIArticleRepository.SaveAsync())
+			{
+				logger.LogWarning("User {} failed to Create AI article entity.", userId.Value);
+				return StatusCode(StatusCodes.Status500InternalServerError, ResponseFactory.NewFailedBaseResponse(
+					StatusCodes.Status500InternalServerError,
+					ErrorMessages.Controller.WordSession.CreateAiArticleFailed
+				));				
+			}
+			
+			// 下一个单词为空，表示会话已经结束
+			var userCheckInEntity = new UserCheckInEntity
+			{
+				UserId = userId.Value,
+				CheckInDate = DateTime.Now,
+				User = user
+			};
+			// 打卡
+			if (await repository.UserCheckInRepository.CheckInTodayAsync(userId.Value))
+			{
+				repository.UserCheckInRepository.Create(userCheckInEntity);
+			}
 			else
 			{
-				// 下一个单词为空，表示会话已经结束
-				var UserCheckInEntity = new UserCheckInEntity
-				{
-					UserId = userId.Value,
-					CheckInDate = DateTime.Now,
-					User = user
-				};
-				// 打卡
-				if (await repository.UserCheckInRepository.CheckInTodayAsync(userId.Value))
-				{
-					repository.UserCheckInRepository.Create(UserCheckInEntity);
-				}
-				else
-				{
-					repository.UserCheckInRepository.Update(UserCheckInEntity);
-				}
-
-				// 删除会话
-				currentStudySession.RemoveSession(session.Id, logger);
-				// 删除会话记录表
-				repository.SessionRepository.Delete(session);
-
-				if(!await repository.UserCheckInRepository.SaveAsync())
-				{
-					return StatusCode(StatusCodes.Status500InternalServerError, ResponseFactory.NewFailedBaseResponse(
-						StatusCodes.Status500InternalServerError,
-						ErrorMessages.Controller.User.UserCheckInFailed
-					));
-				}
-				if(!await repository.SessionRepository.SaveAsync())
-				{
-					return StatusCode(StatusCodes.Status500InternalServerError, ResponseFactory.NewFailedBaseResponse(
-						StatusCodes.Status500InternalServerError,
-						ErrorMessages.Controller.WordSession.DeleteFailed
-					));
-				}
-
-				// 返回会话结束信息
-				return Ok(SuccessMessages.Controller.WordSession.WordSessionOver);
+				repository.UserCheckInRepository.Update(userCheckInEntity);
 			}
+
+			// 删除会话
+			currentStudySession.RemoveSession(session.Id, logger);
+			// 删除会话记录表
+			repository.SessionRepository.Delete(session);
+
+			if(!await repository.UserCheckInRepository.SaveAsync())
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, ResponseFactory.NewFailedBaseResponse(
+					StatusCodes.Status500InternalServerError,
+					ErrorMessages.Controller.User.UserCheckInFailed
+				));
+			}
+			if(!await repository.SessionRepository.SaveAsync())
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, ResponseFactory.NewFailedBaseResponse(
+					StatusCodes.Status500InternalServerError,
+					ErrorMessages.Controller.WordSession.DeleteFailed
+				));
+			}
+			
+			// 返回会话结束信息
+			return Ok(SuccessMessages.Controller.WordSession.WordSessionOver);
 		}
 		catch (Exception e)
 		{
