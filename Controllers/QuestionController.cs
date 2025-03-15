@@ -20,15 +20,23 @@ namespace Seiun.Controllers;
 [ApiController, Route("/api/question")]
 public class QuestionController(ILogger<QuestionController> logger, IRepositoryService repository, IAIRequestService aiRequest) : ControllerBase
 {
+    /// <summary>
+    /// 获取完型填空
+    /// </summary>
+    /// <returns>完型填空题目</returns>
     [HttpGet("fill-blank", Name = "FillBlank")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Authorize(Roles = $"{nameof(UserRole.User)},{nameof(UserRole.Creator)},{nameof(UserRole.Admin)},{nameof(UserRole.SuperAdmin)}")]
+    [ProducesResponseType(typeof(FillInBlankResp), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FillInBlankResp), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(FillInBlankResp), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(FillInBlankResp), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> FillBlank()
     {
         var userId = User.GetUserId();
         if(userId == null)
         {
-            return StatusCode(StatusCodes.Status403Forbidden, ResponseFactory.NewFailedBaseResponse(
+            return StatusCode(StatusCodes.Status403Forbidden, FillInBlankResp.Fail(
                 StatusCodes.Status403Forbidden,
                 ErrorMessages.Controller.Any.InvalidJwtToken
             ));
@@ -37,7 +45,7 @@ public class QuestionController(ILogger<QuestionController> logger, IRepositoryS
         var finishedWordEntities = await repository.FinishedWordRepository.GetWordsToQuestionAsync(userId.Value);
         if (finishedWordEntities == null)
         {
-            return NotFound(ResponseFactory.NewFailedBaseResponse(
+            return NotFound(FillInBlankResp.Fail(
             StatusCodes.Status404NotFound,
             ErrorMessages.Controller.Question.NoWordsToQuestion
             ));
@@ -48,7 +56,7 @@ public class QuestionController(ILogger<QuestionController> logger, IRepositoryS
             .ToList();
         if (wordsToQuestion.Count == 0)
         {
-            return NotFound(ResponseFactory.NewFailedBaseResponse(
+            return NotFound(FillInBlankResp.Fail(
             StatusCodes.Status404NotFound,
             ErrorMessages.Controller.Word.WordNotFound
             ));
@@ -96,4 +104,6 @@ public class QuestionController(ILogger<QuestionController> logger, IRepositoryS
             ErrorMessages.Controller.Question.GetAiFillInBlankFailed
         ));
     }
+    
+    
 }
